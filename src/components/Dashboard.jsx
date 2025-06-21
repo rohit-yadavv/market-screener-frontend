@@ -1,70 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { CheckIcon, CopyIcon, InfoIcon } from "lucide-react";
+import Events from "./Events";
+import { macdCrossSignalLinePineScript } from "../constants/pince-scripts";
 
 export default function Dashboard() {
-  const [events, setEvents] = useState([]);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [activeTab, setActiveTab] = useState("steps");
+  const webhookUrl = `${import.meta.env.VITE_BACKEND_URL}/webhook`;
 
-  useEffect(() => {
-    const eventSource = new EventSource(
-      `${import.meta.env.VITE_BACKEND_URL}/sse`
-    );
-
-    eventSource.onopen = () => {
-      console.log("✅ SSE connected");
-    };
-
-    eventSource.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setEvents((prev) => [data, ...prev]);
-    };
-
-    eventSource.onerror = (err) => {
-      console.error("❌ SSE error:", err);
-      eventSource.close();
-    };
-
-    return () => eventSource.close();
-  }, []);
-
-  const pineScript = `
-//@version=5
-indicator("MACD Full Crossover Webhook", overlay=false)
-
-// === MACD Calculation ===
-[macdLine, signalLine, _] = ta.macd(close, 12, 26, 9)
-
-// === Detect crossovers ===
-crossUp = ta.crossover(macdLine, signalLine)
-crossDown = ta.crossunder(macdLine, signalLine)
-isCross = crossUp or crossDown
-
-// === Determine direction and zone ===
-direction = crossUp ? "up" : "down"
-zone = (macdLine > 0 and signalLine > 0) ? "above" :
-       (macdLine < 0 and signalLine < 0) ? "below" : "mixed"
-
-// Only trigger if in "above" or "below" zone
-validCrossover = isCross and (zone == "above" or zone == "below")
-
-// === Format timestamp: "YYYY-MM-DD HH:MM" ===
-formattedTime = str.tostring(year) + "-" + str.tostring(month) + "-" + str.tostring(dayofmonth) + " " + str.tostring(hour) + ":" + str.tostring(minute, "#00")
-
-// === Build JSON string (all on one line to avoid syntax error) ===
-jsonMessage = '{"symbol":"' + syminfo.ticker + '","macd":' + str.tostring(macdLine, format.mintick) + ',"signal":' + str.tostring(signalLine, format.mintick) + ',"direction":"' + direction + '","zone":"' + zone + '","time":"' + formattedTime + '"}'
-
-// === Trigger alert on valid crossover ===
-if validCrossover
-    alert(jsonMessage, alert.freq_once_per_bar)
-
-// === Optional: Plot MACD and signal lines ===
-plot(macdLine, title="MACD", color=color.blue)
-plot(signalLine, title="Signal", color=color.orange)
-
-`;
-
-  const handleCopy = async () => {
+  const handleCopy = async (text) => {
     try {
-      await navigator.clipboard.writeText(pineScript);
+      await navigator.clipboard.writeText(text);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (err) {
@@ -73,80 +19,105 @@ plot(signalLine, title="Signal", color=color.orange)
   };
 
   return (
-    <div className="min-h-screen w-full bg-white text-gray-900 font-sans px-6 py-10">
-      <header className="w-full mb-8">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">
-          MACD Crossover Alerts
+    <div className="min-h-screen w-full bg-gray-50 text-gray-900 px-6 py-10 font-sans">
+      <header className="mb-8">
+        <h1 className="text-4xl font-bold text-blue-700 mb-1">
+          MACD Crossover Dashboard
         </h1>
+        <p className="text-gray-500">
+          Track and manage real-time crossover alerts using TradingView
+        </p>
       </header>
 
-      {/* Pine Script Section */}
-      <section className="w-full bg-gray-50 border border-gray-200 rounded-xl p-6 mb-10 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-4">
-          <h2 className="text-2xl font-semibold text-gray-700">Pine Script</h2>
+      <div className="flex gap-4 mb-8 overflow-x-auto border-b border-gray-200">
+        {["steps", "script", "webhook", "events"].map((tab) => (
           <button
-            onClick={handleCopy}
-            className="bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded shadow-sm"
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`relative py-2 px-4 text-sm font-medium rounded-t-md ${
+              activeTab === tab
+                ? "text-blue-600 border-b-2 border-blue-600 bg-white shadow"
+                : "text-gray-500 hover:text-blue-500"
+            }`}
           >
-            {copySuccess ? "✅ Copied!" : "Copy Pine Script"}
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
           </button>
-        </div>
+        ))}
+      </div>
 
-        <p className="text-sm text-gray-600 mb-3">
-          Paste this into your TradingView Pine Editor
-        </p>
+      {activeTab === "steps" && (
+        <section className="bg-white border border-blue-100 rounded-xl p-6 mb-12 shadow-md">
+          <h2 className="text-xl font-semibold text-blue-700 mb-4 flex items-center">
+            <InfoIcon className="mr-2" /> How to Set Up Alert
+          </h2>
+          <ol className="list-decimal pl-6 space-y-4 text-sm text-gray-700">
+            <li>
+              <strong>Copy the Pine Script</strong> from the <em>Script</em>{" "}
+              tab.
+            </li>
+            <li>
+              Open <strong>TradingView</strong> and navigate to the{" "}
+              <em>Pine Editor</em>.
+            </li>
+            <li>
+              Paste the copied script and click <strong>“Add to Chart”</strong>.
+            </li>
+            <li>
+              Click <strong>“Create Alert”</strong> and select the MACD
+              crossover indicator.
+            </li>
+            <li>
+              Paste the Webhook URL from the <em>Webhook</em> tab into the alert
+              settings.
+            </li>
+            <li>
+              Select <strong>“Once per bar”</strong> and create the alert.
+            </li>
+            <li>
+              Watch the <em>Events</em> tab for live MACD crossover signals.
+            </li>
+          </ol>
+        </section>
+      )}
 
-        <pre className="bg-gray-100 text-gray-800 h-80 overflow-y-auto text-sm p-4 rounded font-mono overflow-x-auto border border-gray-300 whitespace-pre">
-          {pineScript}
-        </pre>
+      {activeTab === "script" && (
+        <section className="bg-white border border-gray-200 rounded-xl p-6 mb-12 shadow">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-700">Pine Script</h2>
+            <button
+              onClick={() => handleCopy(macdCrossSignalLinePineScript)}
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm px-4 py-2 rounded-md shadow hover:brightness-110 transition"
+            >
+              {copySuccess ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
+              {copySuccess ? "Copied" : "Copy"}
+            </button>
+          </div>
+          <pre className="bg-gray-100 text-gray-800 text-sm p-4 rounded-md border border-gray-300 overflow-auto h-96">
+            {macdCrossSignalLinePineScript}
+          </pre>
+        </section>
+      )}
 
-        <p className="text-sm mt-4 text-gray-700">
-          <strong>Webhook URL:</strong>{" "}
-          <code className="bg-blue-50 px-2 py-1 rounded text-blue-600">
-            {`${import.meta.env.VITE_BACKEND_URL}/webhook`}
-          </code>
-        </p>
-      </section>
+      {activeTab === "webhook" && (
+        <section className="bg-white border border-gray-200 rounded-xl p-6 mb-12 shadow">
+          <h2 className="text-xl font-semibold text-gray-700 mb-4">
+            Webhook URL
+          </h2>
+          <div className="flex justify-between items-center bg-white border border-gray-200 px-4 py-3 rounded-md shadow-sm">
+            <code className="text-blue-700 text-sm break-all">
+              {webhookUrl}
+            </code>
+            <button
+              onClick={() => handleCopy(webhookUrl)}
+              className="text-blue-500 hover:text-blue-700 transition"
+            >
+              {copySuccess ? <CheckIcon size={18} /> : <CopyIcon size={18} />}
+            </button>
+          </div>
+        </section>
+      )}
 
-      {/* Alert Section */}
-      <section className="w-full">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">
-          🔔 Live Crossover Events
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {events.length === 0 ? (
-            <div className="col-span-full text-center text-gray-400 text-lg">
-              ⏳ Waiting for alerts...
-            </div>
-          ) : (
-            events.map((event, idx) => (
-              <div
-                key={idx}
-                className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all"
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <div className="text-lg font-medium text-gray-800">
-                    {event.symbol}
-                  </div>
-                  <span
-                    className={`text-xs px-3 py-1 rounded-full font-semibold ${
-                      event.type === "bullish"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
-                  >
-                    {event.type.toUpperCase()}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  {new Date(event.timestamp).toLocaleString()}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
+      {activeTab === "events" && <Events />}
     </div>
   );
 }
