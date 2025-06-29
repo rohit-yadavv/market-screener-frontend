@@ -1,11 +1,12 @@
-import Dashboard from "./components/Dashboard";
+import { Route, Routes } from "react-router-dom";
+import Login from "./pages/Login.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 
-function App() {
+export default function App() {
   return (
-    <div className="min-size-svh flex p-0">
-      <Dashboard />
-    </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+    </Routes>
   );
 }
-
-export default App;
