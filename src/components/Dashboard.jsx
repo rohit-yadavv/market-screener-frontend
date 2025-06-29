@@ -1,20 +1,55 @@
 import { useState } from "react";
-import { CheckIcon, CopyIcon, InfoIcon } from "lucide-react";
+import { CheckIcon, CopyIcon, InfoIcon, XIcon } from "lucide-react";
 import Events from "./Events";
-import { macdCrossSignalLinePineScript } from "../constants/pince-scripts";
 
-export default function Dashboard() {
-  const [copySuccess, setCopySuccess] = useState(false);
+const stockList = [
+  "AAPL",
+  "MSFT",
+  "GOOGL",
+  "AMZN",
+  "TSLA",
+  "META",
+  "NFLX",
+  "NVDA",
+  "INTC",
+  "AMD",
+  "BABA",
+  "UBER",
+  "LYFT",
+  "ADBE",
+  "ORCL",
+  "CRM",
+  "SHOP",
+  "PYPL",
+  "SQ",
+  "PLTR",
+];
+
+export default function Dashboard({ userId }) {
   const [activeTab, setActiveTab] = useState("steps");
-  const webhookUrl = `${import.meta.env.VITE_BACKEND_URL}/webhook`;
+  const [selectedStocks, setSelectedStocks] = useState([]);
 
-  const handleCopy = async (text) => {
+  const toggleStockSelection = (symbol) => {
+    setSelectedStocks((prev) =>
+      prev.includes(symbol)
+        ? prev.filter((s) => s !== symbol)
+        : prev.length < 20
+        ? [...prev, symbol]
+        : prev
+    );
+  };
+
+  const sendSelectedStocks = async () => {
     try {
-      await navigator.clipboard.writeText(text);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
+      const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/subscribe`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, symbols: selectedStocks }),
+      });
+      const data = await res.json();
+      console.log("✅ Subscribed:", data);
     } catch (err) {
-      console.error("❌ Failed to copy:", err);
+      console.error("❌ Subscription failed:", err);
     }
   };
 
@@ -25,12 +60,12 @@ export default function Dashboard() {
           MACD Crossover Dashboard
         </h1>
         <p className="text-gray-500">
-          Track and manage real-time crossover alerts using TradingView
+          Track and manage real-time MACD alerts using Alpaca WebSockets
         </p>
       </header>
 
       <div className="flex gap-4 mb-8 overflow-x-auto border-b border-gray-200">
-        {["steps", "script", "webhook", "events"].map((tab) => (
+        {["steps", "stocks", "events"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -48,72 +83,65 @@ export default function Dashboard() {
       {activeTab === "steps" && (
         <section className="bg-white border border-blue-100 rounded-xl p-6 mb-12 shadow-md">
           <h2 className="text-xl font-semibold text-blue-700 mb-4 flex items-center">
-            <InfoIcon className="mr-2" /> How to Set Up Alert
+            <InfoIcon className="mr-2" /> How to Use This Dashboard
           </h2>
           <ol className="list-decimal pl-6 space-y-4 text-sm text-gray-700">
-            <li>
-              <strong>Copy the Pine Script</strong> from the <em>Script</em>{" "}
-              tab.
-            </li>
-            <li>
-              Open <strong>TradingView</strong> and navigate to the{" "}
-              <em>Pine Editor</em>.
-            </li>
-            <li>
-              Paste the copied script and click <strong>“Add to Chart”</strong>.
-            </li>
-            <li>
-              Click <strong>“Create Alert”</strong> and select the MACD
-              crossover indicator.
-            </li>
-            <li>
-              Paste the Webhook URL from the <em>Webhook</em> tab into the alert
-              settings.
-            </li>
-            <li>
-              Select <strong>“Once per bar”</strong> and create the alert.
-            </li>
-            <li>
-              Watch the <em>Events</em> tab for live MACD crossover signals.
-            </li>
+            <li>Select up to 20 stocks from the Stocks tab.</li>
+            <li>Click "Subscribe" to start receiving real-time MACD alerts.</li>
+            <li>Check the Events tab for live updates.</li>
           </ol>
         </section>
       )}
 
-      {activeTab === "script" && (
-        <section className="bg-white border border-gray-200 rounded-xl p-6 mb-12 shadow">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-700">Pine Script</h2>
-            <button
-              onClick={() => handleCopy(macdCrossSignalLinePineScript)}
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-sm px-4 py-2 rounded-md shadow hover:brightness-110 transition"
-            >
-              {copySuccess ? <CheckIcon size={16} /> : <CopyIcon size={16} />}
-              {copySuccess ? "Copied" : "Copy"}
-            </button>
-          </div>
-          <pre className="bg-gray-100 text-gray-800 text-sm p-4 rounded-md border border-gray-300 overflow-auto h-96">
-            {macdCrossSignalLinePineScript}
-          </pre>
-        </section>
-      )}
-
-      {activeTab === "webhook" && (
+      {activeTab === "stocks" && (
         <section className="bg-white border border-gray-200 rounded-xl p-6 mb-12 shadow">
           <h2 className="text-xl font-semibold text-gray-700 mb-4">
-            Webhook URL
+            Select Stocks (Max: 20)
           </h2>
-          <div className="flex justify-between items-center bg-white border border-gray-200 px-4 py-3 rounded-md shadow-sm">
-            <code className="text-blue-700 text-sm break-all">
-              {webhookUrl}
-            </code>
-            <button
-              onClick={() => handleCopy(webhookUrl)}
-              className="text-blue-500 hover:text-blue-700 transition"
-            >
-              {copySuccess ? <CheckIcon size={18} /> : <CopyIcon size={18} />}
-            </button>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {stockList.map((stock) => (
+              <button
+                key={stock}
+                onClick={() => toggleStockSelection(stock)}
+                className={`px-3 py-1 text-sm rounded-md border ${
+                  selectedStocks.includes(stock)
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-700 hover:bg-blue-50 border-gray-300"
+                }`}
+              >
+                {stock}
+              </button>
+            ))}
           </div>
+
+          {selectedStocks.length > 0 && (
+            <div className="mb-4">
+              <h3 className="text-md font-medium text-gray-700 mb-2">
+                Selected Stocks:
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {selectedStocks.map((stock) => (
+                  <span
+                    key={stock}
+                    className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                  >
+                    {stock}
+                    <button onClick={() => toggleStockSelection(stock)}>
+                      <XIcon className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button
+            onClick={sendSelectedStocks}
+            disabled={selectedStocks.length === 0}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm shadow hover:bg-blue-700 disabled:opacity-50"
+          >
+            Subscribe
+          </button>
         </section>
       )}
 
