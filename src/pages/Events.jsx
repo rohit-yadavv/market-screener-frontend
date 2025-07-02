@@ -10,9 +10,8 @@ export default function Events() {
   const [pastFetched, setPastFetched] = useState(false);
   const [error, setError] = useState("");
 
-  // Live SSE handler
   useEffect(() => {
-    const evtSrc = new EventSource(`${BASE_URL}/sse`, {
+    const evtSrc = new EventSource(`${BASE_URL}/events/sse`, {
       withCredentials: true,
     });
 
@@ -20,6 +19,10 @@ export default function Events() {
       const data = JSON.parse(e.data);
       setLiveEvents((prev) => [data, ...prev]);
     };
+
+    evtSrc.addEventListener("ping", () => {
+      console.log("🔥 Got a ping from server");
+    });
 
     evtSrc.onerror = (err) => {
       console.error("SSE error:", err);

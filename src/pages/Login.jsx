@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
-    if (!username.trim()) {
-      setError("Please enter a valid username");
+    if (!email.trim() || !password.trim()) {
+      setError("Please enter both email and password");
       return;
     }
 
@@ -18,7 +19,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await login(username);
+      await login(email, password);
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
@@ -49,27 +50,45 @@ export default function Login() {
         >
           <div>
             <label
-              htmlFor="username"
+              htmlFor="email"
               className="block text-sm font-medium text-gray-700"
             >
-              Username
+              Email
             </label>
             <input
-              id="username"
-              type="text"
+              id="email"
+              type="email"
               className="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 outline-none"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
-              aria-describedby={error ? "error-message" : undefined}
             />
-            {error && (
-              <p id="error-message" className="mt-2 text-sm text-red-600">
-                {error}
-              </p>
-            )}
           </div>
+
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              className="mt-1 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 outline-none"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading}
+            />
+          </div>
+
+          {error && (
+            <p id="error-message" className="text-sm text-red-600 mt-1">
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
