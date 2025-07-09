@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { login } from "../utils/api";
+import { BASE_URL } from "../utils/api";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -19,7 +20,12 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
+      await axios.post(
+        `${BASE_URL}/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
+
       navigate("/");
     } catch (err) {
       console.error(err);

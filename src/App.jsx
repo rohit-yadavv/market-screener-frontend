@@ -6,7 +6,13 @@ import { useAuth } from "./hooks/useAuth.js";
 
 function ProtectedRoute({ children }) {
   const { loading, isAuthenticated } = useAuth();
-  console.log(isAuthenticated);
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js").then(() => {
+      console.log("✅ Service Worker registered");
+    });
+  }
+
   if (loading) {
     return <div className="p-6">Checking authentication...</div>;
   }

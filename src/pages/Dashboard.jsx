@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import StockSelector from "../components/StockSelector";
 import Events from "../components/Events";
 import axios from "axios";
+import { subscribeToPushNotifications } from "../utils/push.util";
 
 export default function Dashboard() {
   const [tab, setTab] = useState("stocks");
@@ -20,7 +21,23 @@ export default function Dashboard() {
         setLoading(false);
       }
     };
+
+    async function registerPush() {
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+
+      const registration = await navigator.serviceWorker.ready;
+      const existingSub = await registration.pushManager.getSubscription();
+
+      if (existingSub) {
+        console.log("🔔 Already subscribed to push");
+        return;
+      }
+
+      const vapidKey = import.meta.env.VITE_APP_VAPID_PUBLIC_KEY;
+      await subscribeToPushNotifications(vapidKey);
+    }
     fetchSubscribed();
+    registerPush();
   }, []);
 
   const handleUpdate = (newSymbols) => {
