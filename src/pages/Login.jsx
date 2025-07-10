@@ -2,9 +2,11 @@ import { useState } from "react";
 import { BASE_URL } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../hooks/useAuth";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,7 +27,8 @@ export default function Login() {
         { email, password },
         { withCredentials: true }
       );
-
+      setIsAuthenticated(true);
+      console.log(isAuthenticated);
       navigate("/");
     } catch (err) {
       console.error(err);

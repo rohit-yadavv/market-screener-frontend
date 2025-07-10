@@ -1,7 +1,6 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
-import { Navigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth.js";
 import { useEffect } from "react";
 
