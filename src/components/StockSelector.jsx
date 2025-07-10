@@ -12,6 +12,30 @@ export default function StockSelector({ selected = [], setSelected }) {
   const [localSelected, setLocalSelected] = useState([]);
   const [search, setSearch] = useState("");
 
+  const saveSymbols = async (symbolsToSave) => {
+    if (!Array.isArray(symbolsToSave)) return;
+
+    setSaving(true);
+    try {
+      const res = await axios.post(
+        `${BASE_URL}/symbols`,
+        { symbols: symbolsToSave },
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        setSelected(symbolsToSave);
+        setInitialSymbols(symbolsToSave);
+        setLocalSelected(symbolsToSave);
+        return true;
+      }
+    } catch (err) {
+      console.error("Symbol save failed", err);
+      alert("Failed to save symbols. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   useEffect(() => {
     const fetchSubscribed = async () => {
       try {
@@ -42,24 +66,9 @@ export default function StockSelector({ selected = [], setSelected }) {
   const handleSubmit = async () => {
     if (!localSelected.length)
       return alert("Please select at least one stock.");
-    setSaving(true);
-    try {
-      const res = await axios.post(
-        `${BASE_URL}/symbols`,
-        { symbols: localSelected },
-        { withCredentials: true }
-      );
-      if (res.data.success) {
-        alert("Subscription updated!");
-        setSelected(localSelected);
-        setInitialSymbols(localSelected);
-      }
-    } catch (err) {
-      console.error("Subscription failed", err);
-      alert("Failed to subscribe. Please try again.");
-    } finally {
-      setSaving(false);
-    }
+
+    const success = await saveSymbols(localSelected);
+    if (success) alert("Subscription updated!");
   };
 
   const filteredStocks = US_STOCKS.filter((symbol) =>
@@ -140,6 +149,18 @@ export default function StockSelector({ selected = [], setSelected }) {
         className="bg-green-600 text-white px-6 py-2 my-8  rounded-md hover:bg-green-700 transition disabled:opacity-50"
       >
         {saving ? "Saving..." : "Save & Start Tracking"}
+      </button>
+      <button
+        onClick={async () => {
+          if (!confirm("Are you sure you want to unsubscribe from all stocks?"))
+            return;
+          const success = await saveSymbols([]);
+          if (success) alert("All subscriptions removed.");
+        }}
+        disabled={saving}
+        className="bg-red-600 text-white px-6 py-2 ml-4 my-8 rounded-md hover:bg-red-700 transition disabled:opacity-50"
+      >
+        {saving ? "Resetting..." : "Reset Subscriptions"}
       </button>
     </div>
   );
