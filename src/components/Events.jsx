@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { BASE_URL } from "../utils/api";
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -9,7 +10,7 @@ export default function Events() {
   const fetchPastEvents = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("/macd/hisory", {
+      const res = await axios.get(`${BASE_URL}/macd/hisory`, {
         withCredentials: true,
       });
       if (res.data.success) {
