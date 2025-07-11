@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { US_STOCKS } from "../constants";
 import { BASE_URL } from "../utils/api";
+import MacdThreshold from "./MacdThreshold";
 
 // eslint-disable-next-line no-unused-vars
 export default function StockSelector({ selected = [], setSelected }) {
@@ -18,7 +19,7 @@ export default function StockSelector({ selected = [], setSelected }) {
     setSaving(true);
     try {
       const res = await axios.post(
-        `${BASE_URL}/symbols`,
+        `${BASE_URL}/user/symbols`,
         { symbols: symbolsToSave },
         { withCredentials: true }
       );
@@ -40,7 +41,7 @@ export default function StockSelector({ selected = [], setSelected }) {
     const fetchSubscribed = async () => {
       try {
         setIsInitialSymbolsLoading(true);
-        const res = await axios.get(`${BASE_URL}/symbols`, {
+        const res = await axios.get(`${BASE_URL}/user/symbols`, {
           withCredentials: true,
         });
         const subs = res.data.symbols || [];
@@ -77,9 +78,12 @@ export default function StockSelector({ selected = [], setSelected }) {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">
-        Track Your Stocks
-      </h2>
+      <div className="flex justify-between w-full">
+        <h2 className="text-2xl font-bold mb-4 text-gray-800">
+          Track Your Stocks
+        </h2>
+        <MacdThreshold />
+      </div>
 
       <div className="mb-6">
         <p className="text-sm text-gray-700 font-medium mb-1">
