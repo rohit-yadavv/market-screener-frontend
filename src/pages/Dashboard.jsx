@@ -2,26 +2,13 @@
 import { useEffect, useState } from "react";
 import StockSelector from "../components/StockSelector";
 import Events from "../components/Events";
-import axios from "axios";
 import { subscribeToPushNotifications } from "../utils/push.util";
 
 export default function Dashboard() {
   const [tab, setTab] = useState("stocks");
   const [symbols, setSymbols] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSubscribed = async () => {
-      try {
-        const res = await axios.get("/subscribe", { withCredentials: true });
-        setSymbols(res.data.symbols || []);
-      } catch (err) {
-        console.error("Failed to fetch symbols", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     async function registerPush() {
       if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
 
@@ -36,14 +23,8 @@ export default function Dashboard() {
       const vapidKey = import.meta.env.VITE_APP_VAPID_PUBLIC_KEY;
       await subscribeToPushNotifications(vapidKey);
     }
-    fetchSubscribed();
     registerPush();
   }, []);
-
-  const handleUpdate = (newSymbols) => {
-    setSymbols(newSymbols);
-    // setTab("events");
-  };
 
   const tabs = [
     { id: "stocks", label: "📈 Stock Selector" },
@@ -73,10 +54,11 @@ export default function Dashboard() {
       </div>
 
       <div className="bg-white rounded-xl shadow-md p-6">
-        {loading ? (
-          <p className="text-gray-500 animate-pulse">Loading...</p>
-        ) : tab === "stocks" ? (
-          <StockSelector selected={symbols} setSelected={handleUpdate} />
+        {tab === "stocks" ? (
+          <StockSelector
+            selected={symbols}
+            setSelected={(newSymbols) => setSymbols(newSymbols)}
+          />
         ) : (
           <Events selectedSymbols={symbols} />
         )}
