@@ -21,5 +21,8 @@ export const US_STOCKS = [
   "BA", "GE", "CAT", "XOM", "CVX", "NKE", "UPS", "F",
 
   // Others
-  "ADBE", "CRM", "ORCL", "PYPL", "IBM", "TSM"
+  "ADBE", "CRM", "ORCL", "PYPL", "IBM", "TSM",
+
+  // Additions
+  "MSTR", "COIN", "SPX"
 ];
