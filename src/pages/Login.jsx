@@ -6,6 +6,7 @@ import { useAuth } from "../hooks/useAuth";
 
 export default function Login() {
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const { isAuthenticated, setIsAuthenticated } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +29,6 @@ export default function Login() {
         { withCredentials: true }
       );
       setIsAuthenticated(true);
-      console.log(isAuthenticated);
       navigate("/");
     } catch (err) {
       console.error(err);
