@@ -2,9 +2,31 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import { useAuth } from "./hooks/useAuth.js";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 
 function ProtectedRoute({ children, loading, isAuthenticated }) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted px-4">
+        <div className="w-full max-w-md space-y-4">
+          <Skeleton className="h-10 w-full rounded-lg" />
+          <Skeleton className="h-40 w-full rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-3/4 rounded-lg" />
+            <Skeleton className="h-6 w-2/3 rounded-lg" />
+            <Skeleton className="h-6 w-1/2 rounded-lg" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return children;
+}
+
+export default function App() {
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").then(() => {
@@ -13,12 +35,6 @@ function ProtectedRoute({ children, loading, isAuthenticated }) {
     }
   }, []);
 
-  if (loading) return <div className="p-6">Checking authentication...</div>;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  return children;
-}
-
-export default function App() {
   const { loading, isAuthenticated } = useAuth();
 
   return (
