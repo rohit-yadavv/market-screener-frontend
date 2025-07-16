@@ -33,14 +33,19 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await axios.post(
+      const { data } = await axios.post(
         `${BASE_URL}/auth/login`,
         { email, password },
         { withCredentials: true }
       );
-      setIsAuthenticated(true);
-      toast.success("Login successful!");
-      navigate("/");
+      if (data.success) {
+        setIsAuthenticated(true);
+        toast.success("Login successful!");
+        navigate("/");
+      } else {
+        setIsAuthenticated(false);
+        toast.error(data.message);
+      }
     } catch (err) {
       console.error(err);
       toast.error("Login failed. Please try again.");
