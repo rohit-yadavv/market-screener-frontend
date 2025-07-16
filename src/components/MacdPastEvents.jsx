@@ -40,7 +40,7 @@ export default function MacdPastEvents() {
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
+      <h2 className="text-2xl font-bold  mb-6">
         MACD Past Events
       </h2>
 

@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import { useAuth } from "./hooks/useAuth.js";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
+import { initTheme } from "./lib/theme.js";
 
 function ProtectedRoute({ children, loading, isAuthenticated }) {
   if (loading) {
@@ -28,6 +29,7 @@ function ProtectedRoute({ children, loading, isAuthenticated }) {
 
 export default function App() {
   useEffect(() => {
+    initTheme();
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").then(() => {
         console.log("Service Worker registered");

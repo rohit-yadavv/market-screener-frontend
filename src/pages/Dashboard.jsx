@@ -44,21 +44,19 @@ export default function Dashboard() {
             Settings
           </TabsTrigger>
         </TabsList>
-        <Card>
-          <CardContent className="p-6">
-            <TabsContent value="stocks">
-              <StockSelector />
-            </TabsContent>
+        <div className="p-6 ">
+          <TabsContent value="stocks">
+            <StockSelector />
+          </TabsContent>
 
-            <TabsContent value="events">
-              <MacdPastEvents />
-            </TabsContent>
+          <TabsContent value="events">
+            <MacdPastEvents />
+          </TabsContent>
 
-            <TabsContent value="settings">
-              <Settings />
-            </TabsContent>
-          </CardContent>
-        </Card>
+          <TabsContent value="settings">
+            <Settings />
+          </TabsContent>
+        </div>
       </Tabs>
     </main>
   );

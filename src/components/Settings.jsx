@@ -17,12 +17,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import ThemeSwitcher from "./ThemeSwitcher";
+import { Pencil } from "lucide-react";
 
 export default function Settings() {
   const [allSymbols, setAllSymbols] = useState([]);
   const [symbolsLoading, setSymbolsLoading] = useState(true);
   const [newSymbol, setNewSymbol] = useState("");
   const [adding, setAdding] = useState(false);
+
+  const [editSymbol, setEditSymbol] = useState("");
+  const [editInput, setEditInput] = useState("");
+  const [editing, setEditing] = useState(false);
 
   const [newUser, setNewUser] = useState({ email: "", password: "" });
   const [addingUser, setAddingUser] = useState(false);
@@ -100,6 +115,38 @@ export default function Settings() {
     }
   };
 
+  const handleSaveEditSymbol = async () => {
+    const trimmed = editInput.trim().toUpperCase();
+    if (!/^[A-Z.]{1,10}$/.test(trimmed)) {
+      return toast.error("Invalid symbol.");
+    }
+    if (allSymbols.includes(trimmed) && trimmed !== editSymbol) {
+      return toast.info("Symbol already exists.");
+    }
+
+    setEditing(true);
+    try {
+      const res = await axios.put(
+        `${BASE_URL}/user/symbols/all`,
+        { oldSymbol: editSymbol, newSymbol: trimmed },
+        { withCredentials: true }
+      );
+      if (res.data.success && res.data.allSymbols) {
+        setAllSymbols(res.data.allSymbols);
+        setEditInput("");
+        setEditSymbol("");
+        toast.success("Symbol updated!");
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (err) {
+      console.error("Edit symbol failed", err);
+      toast.error("Could not update symbol.");
+    } finally {
+      setEditing(false);
+    }
+  };
+
   const handleAddUser = async () => {
     const { email, password } = newUser;
     if (!email || !password) return toast.error("Please fill all fields.");
@@ -174,10 +221,21 @@ export default function Settings() {
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Settings</h2>
-      <div className="flex flex-wrap gap-6">
+      <h2 className="text-2xl font-bold mb-6">Settings</h2>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {/* Card Theme */}
+        <Card className="sm:col-span-2">
+          <CardHeader>
+            <CardTitle>Select Appearance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ThemeSwitcher />
+          </CardContent>
+        </Card>
+
         {/* Card 1: Add Symbol */}
-        <Card className="w-full sm:w-[calc(50%-0.75rem)]">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Add New Symbol</CardTitle>
             <CardDescription>
@@ -200,12 +258,55 @@ export default function Settings() {
                 <Label className="mb-2 block">Your Symbol List</Label>
                 <div className="flex flex-wrap gap-2 max-h-40 overflow-auto pr-1">
                   {allSymbols.map((sym) => (
-                    <span
+                    <div
                       key={sym}
-                      className="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-800 border border-gray-300"
+                      className="flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-gray-100 border border-gray-300"
                     >
-                      {sym}
-                    </span>
+                      <span>{sym}</span>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className={" rounded-full p-1"}
+                            onClick={() => {
+                              setEditSymbol(sym);
+                              setEditInput(sym);
+                            }}
+                          >
+                            <Pencil />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Edit Symbol</DialogTitle>
+                          </DialogHeader>
+                          <div className="py-4">
+                            <Label className="mb-1 block">New Symbol</Label>
+                            <Input
+                              value={editInput}
+                              onChange={(e) =>
+                                setEditInput(e.target.value.toUpperCase())
+                              }
+                              placeholder="e.g. AAPL"
+                            />
+                          </div>
+                          <DialogFooter>
+                            <DialogClose asChild>
+                              <Button variant="outline" disabled={editing}>
+                                Cancel
+                              </Button>
+                            </DialogClose>
+                            <Button
+                              onClick={handleSaveEditSymbol}
+                              disabled={editing}
+                            >
+                              {editing ? "Saving..." : "Save"}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -223,7 +324,7 @@ export default function Settings() {
         </Card>
 
         {/* Card 2: Add User */}
-        <Card className="w-full sm:w-[calc(50%-0.75rem)]">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Add User</CardTitle>
             <CardDescription>
@@ -262,7 +363,7 @@ export default function Settings() {
         </Card>
 
         {/* Card 3: Change Password */}
-        <Card className="w-full sm:w-[calc(50%-0.75rem)]">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Reset Password</CardTitle>
             <CardDescription>Update your account password.</CardDescription>
@@ -286,7 +387,7 @@ export default function Settings() {
         </Card>
 
         {/* Card 4: Alert Email */}
-        <Card className="w-full sm:w-[calc(50%-0.75rem)]">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Notification Email</CardTitle>
             <CardDescription>

@@ -45,7 +45,7 @@ export default function StockSelector() {
           }),
         ]);
 
-        console.log(subRes)
+        console.log(subRes);
         if (symbolRes.data.success) {
           setAllSymbols(symbolRes.data.allSymbols || []);
         }
@@ -153,12 +153,10 @@ export default function StockSelector() {
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        MACD Alert Config
-      </h2>
+      <h2 className="text-2xl font-bold  mb-6">MACD Alert Config</h2>
       <div className="grid gap-6 md:grid-cols-3">
         {/* 1. Status Overview */}
-        <Card className="col-span-3 w-full">
+        <Card className="col-span-1">
           <CardHeader>
             <CardTitle className="text-xl font-semibold flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
@@ -278,7 +276,7 @@ export default function StockSelector() {
         </Card>
 
         {/* 3. Threshold Update Card */}
-        <Card className="md:col-span-1 w-full">
+        <Card className="md:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="w-5 h-5" />
