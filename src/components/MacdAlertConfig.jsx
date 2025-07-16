@@ -117,6 +117,8 @@ export default function StockSelector() {
       if (res.data.success) {
         setSubscribedSymbols(localSelected);
         toast.success("Subscription updated!");
+      } else {
+        toast.error(res.data.message);
       }
     } catch {
       toast.error("Could not save symbols.");
