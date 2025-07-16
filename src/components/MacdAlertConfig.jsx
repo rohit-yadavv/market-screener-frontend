@@ -270,7 +270,7 @@ export default function StockSelector() {
               onClick={handleReset}
               disabled={saving}
             >
-              {saving ? "Resetting..." : "Reset"}
+              Reset
             </Button>
           </CardFooter>
         </Card>
