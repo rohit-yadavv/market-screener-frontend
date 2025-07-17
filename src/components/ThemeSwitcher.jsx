@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { setTheme } from "@/lib/theme";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 const themes = [
   { label: "Default Light", value: "default-light" },
@@ -26,17 +27,24 @@ export default function ThemeSwitcher() {
   };
 
   return (
-    <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
-      {themes.map(({ label, value }) => (
-        <Button
-          key={value}
-          variant={activeTheme === value ? "default" : "outline"}
-          onClick={() => handleThemeChange(value)}
-          className="text-xs sm:text-sm capitalize"
-        >
-          {label}
-        </Button>
-      ))}
-    </div>
+    <Card className="sm:col-span-2">
+      <CardHeader>
+        <CardTitle>Select Appearance</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
+          {themes.map(({ label, value }) => (
+            <Button
+              key={value}
+              variant={activeTheme === value ? "default" : "outline"}
+              onClick={() => handleThemeChange(value)}
+              className="text-xs sm:text-sm capitalize"
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,11 +1,10 @@
 import { useEffect } from "react";
 import StockSelector from "../components/MacdAlertConfig";
-import Settings from "../components/Settings";
 import MacdPastEvents from "@/components/MacdPastEvents";
 import { subscribeToPushNotifications } from "../utils/push.util";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
 import { LineChart, SettingsIcon, Zap } from "lucide-react";
+import Settings from "@/components/Settings/Page";
 
 export default function Dashboard() {
   // Push Notification Setup
