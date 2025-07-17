@@ -21,9 +21,10 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BASE_URL } from "@/utils/api";
 import axios from "axios";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "../ui/badge";
 
 export default function AddNewSymbol() {
   const [allSymbols, setAllSymbols] = useState([]);
@@ -34,6 +35,8 @@ export default function AddNewSymbol() {
   const [editSymbol, setEditSymbol] = useState("");
   const [editInput, setEditInput] = useState("");
   const [editing, setEditing] = useState(false);
+
+  const [deletingSymbol, setDeletingSymbol] = useState(null);
 
   const handleAddSymbol = async () => {
     const trimmed = newSymbol.trim().toUpperCase();
@@ -96,6 +99,32 @@ export default function AddNewSymbol() {
     }
   };
 
+  const handleDeleteSymbol = async (symbolToDelete) => {
+    const confirm = window.confirm(
+      `Are you sure you want to delete "${symbolToDelete}"?`
+    );
+    if (!confirm) return;
+
+    setDeletingSymbol(symbolToDelete);
+    try {
+      const res = await axios.delete(`${BASE_URL}/user/symbols/all`, {
+        data: { symbol: symbolToDelete },
+        withCredentials: true,
+      });
+      if (res.data.success && res.data.allSymbols) {
+        setAllSymbols(res.data.allSymbols);
+        toast.success("Symbol deleted!");
+      } else {
+        toast.error(res.data.message || "Failed to delete.");
+      }
+    } catch (err) {
+      console.error("Delete symbol failed", err);
+      toast.error("Could not delete symbol.");
+    } finally {
+      setDeletingSymbol(null);
+    }
+  };
+
   useEffect(() => {
     const fetchSymbols = async () => {
       try {
@@ -139,55 +168,71 @@ export default function AddNewSymbol() {
             <Label className="mb-2 block">Your Symbol List</Label>
             <div className="flex flex-wrap gap-2 max-h-40 overflow-auto pr-1">
               {allSymbols.map((sym) => (
-                <div
+                <Badge
                   key={sym}
-                  className="flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-gray-100 border border-gray-300"
+                  variant="outline"
+                  className="flex items-center justify-between gap-2 p-2 rounded-md "
                 >
-                  <span>{sym}</span>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={" rounded-full p-1"}
-                        onClick={() => {
-                          setEditSymbol(sym);
-                          setEditInput(sym);
-                        }}
-                      >
-                        <Pencil />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Edit Symbol</DialogTitle>
-                      </DialogHeader>
-                      <div className="py-4">
-                        <Label className="mb-1 block">New Symbol</Label>
-                        <Input
-                          value={editInput}
-                          onChange={(e) =>
-                            setEditInput(e.target.value.toUpperCase())
-                          }
-                          placeholder="e.g. AAPL"
-                        />
-                      </div>
-                      <DialogFooter>
-                        <DialogClose asChild>
-                          <Button variant="outline" disabled={editing}>
-                            Cancel
-                          </Button>
-                        </DialogClose>
+                  <span className="font-medium">{sym}</span>
+
+                  <div className="flex items-center gap-1">
+                    {/* Edit Symbol Dialog */}
+                    <Dialog>
+                      <DialogTrigger asChild>
                         <Button
-                          onClick={handleSaveEditSymbol}
-                          disabled={editing}
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 p-0 text-muted-foreground hover:text-primary"
+                          onClick={() => {
+                            setEditSymbol(sym);
+                            setEditInput(sym);
+                          }}
                         >
-                          {editing ? "Saving..." : "Save"}
+                          <Pencil className="h-4 w-4" />
                         </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Edit Symbol</DialogTitle>
+                        </DialogHeader>
+                        <div className="py-4">
+                          <Label className="mb-1 block">New Symbol</Label>
+                          <Input
+                            value={editInput}
+                            onChange={(e) =>
+                              setEditInput(e.target.value.toUpperCase())
+                            }
+                            placeholder="e.g. AAPL"
+                          />
+                        </div>
+                        <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline" disabled={editing}>
+                              Cancel
+                            </Button>
+                          </DialogClose>
+                          <Button
+                            onClick={handleSaveEditSymbol}
+                            disabled={editing}
+                          >
+                            {editing ? "Saving..." : "Save"}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+
+                    {/* Delete Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 p-0 text-red-500 hover:text-red-600"
+                      onClick={() => handleDeleteSymbol(sym)}
+                      disabled={deletingSymbol === sym}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </Badge>
               ))}
             </div>
           </div>
