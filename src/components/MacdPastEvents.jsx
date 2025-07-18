@@ -26,7 +26,10 @@ export default function MacdPastEvents() {
         withCredentials: true,
       });
       if (res.data.success) {
-        setEvents(res.data.events || []);
+        const sortedEvents = (res.data.events || []).sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setEvents(sortedEvents);
       }
     } catch (err) {
       console.error("Failed to fetch past events:", err);
