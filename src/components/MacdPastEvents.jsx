@@ -3,16 +3,17 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "../utils/api";
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
+  CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Flame, Clock } from "lucide-react";
 
 export default function MacdPastEvents() {
   const [events, setEvents] = useState([]);
@@ -40,22 +41,18 @@ export default function MacdPastEvents() {
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold  mb-6">
-        MACD Past Events
-      </h2>
+      <h2 className="text-2xl font-bold mb-4">MACD Past Events</h2>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-4 space-y-4">
-                <Skeleton className="h-6 w-1/3" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Card key={i} className="p-3">
+              <CardContent className="space-y-2">
+                <Skeleton className="h-5 w-1/3" />
                 <div className="flex gap-2">
-                  <Skeleton className="h-5 w-20 rounded-full" />
-                  <Skeleton className="h-5 w-16 rounded-full" />
-                  <Skeleton className="h-5 w-24 rounded-full" />
+                  <Skeleton className="h-4 w-16 rounded-full" />
+                  <Skeleton className="h-4 w-20 rounded-full" />
                 </div>
-                <Skeleton className="h-4 w-1/2" />
               </CardContent>
             </Card>
           ))}
@@ -63,43 +60,33 @@ export default function MacdPastEvents() {
       ) : events.length === 0 ? (
         <p className="text-gray-500">No past events found yet.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {events.map((e, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <CardTitle className="text-xl font-semibold tracking-wide">
-                  {e.symbol}
-                </CardTitle>
+            <Card key={i} className="p-2 gap-0">
+              <CardHeader className="py-2 flex justify-between items-center">
+                <CardTitle>{e.symbol}</CardTitle>
+                <CardDescription>
+                  {new Date(e.createdAt).toLocaleString()}
+                </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-wrap items-center gap-2 text-sm">
+              <CardContent className="flex flex-wrap items-center gap-2 p-2">
                 <Badge
-                  variant={e.type === "bullish" ? "success" : "destructive"}
-                  className="flex items-center gap-1 text-sm"
+                  variant="outline"
+                  className={`flex items-center gap-1 capitalize text-[11px] font-medium px-2.5 py-0.5 rounded-sm min-w-fit ${
+                    e.cycle === "positive"
+                      ? "text-green-700 border-green-300 bg-green-50"
+                      : "text-red-700 border-red-300 bg-red-50"
+                  }`}
                 >
-                  {e.type === "bullish" ? (
-                    <>
-                      <ArrowUpRight className="w-4 h-4" /> Bullish
-                    </>
-                  ) : (
-                    <>
-                      <ArrowDownRight className="w-4 h-4" /> Bearish
-                    </>
-                  )}
+                  <Flame className="w-3 h-3" />
+                  {e.cycle} cycle
                 </Badge>
 
-                <Badge variant="outline" className="capitalize">
-                  {e.side}
-                </Badge>
-
-                <Badge className="bg-yellow-100 text-yellow-800 border border-yellow-300">
-                  Streak: {e.streakCount}
+                <Badge className="flex items-center gap-1 bg-yellow-100 text-yellow-800 text-[11px] font-medium px-2.5 py-0.5 border border-yellow-300 rounded-sm min-w-fit">
+                  <Clock className="w-3 h-3" />
+                  Streak: {e.streak}
                 </Badge>
               </CardContent>
-              <CardFooter>
-                <p className="text-sm text-muted-foreground mt-2">
-                  {new Date(e.createdAt).toLocaleString()}
-                </p>
-              </CardFooter>
             </Card>
           ))}
         </div>
