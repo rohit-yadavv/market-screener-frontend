@@ -10,16 +10,17 @@ import {
 } from "./ui/card";
 
 const lightThemes = [
-  { label: "Default Light", value: "default-light" },
-  { label: "Twitter Light", value: "twitter-light" },
-  { label: "T3 Light", value: "t3-light" },
-  { label: "Marvel", value: "marvel" },
+  { label: "Default", value: "default-light" },
+  { label: "Material", value: "material-light" },
+  { label: "T3", value: "t3-light" },
+  { label: "Marvel", value: "marvel-light" },
 ];
 
 const darkThemes = [
-  { label: "Default Dark", value: "default-dark" },
-  { label: "Twitter Dark", value: "twitter-dark" },
-  { label: "T3 Dark", value: "t3-dark" },
+  { label: "Default", value: "default-dark" },
+  { label: "Material", value: "material-dark" },
+  { label: "T3", value: "t3-dark" },
+  { label: "Marvel", value: "marvel-dark" },
 ];
 
 export default function ThemeSwitcher() {
@@ -36,13 +37,13 @@ export default function ThemeSwitcher() {
   };
 
   const renderThemeButtons = (themes) => (
-    <div className="flex flex-wrap gap-2 sm:gap-3">
+    <div className="flex flex-wrap gap-2">
       {themes.map(({ label, value }) => (
         <Button
           key={value}
           variant={activeTheme === value ? "default" : "outline"}
           onClick={() => handleThemeChange(value)}
-          className="text-xs sm:text-sm capitalize"
+          className="text-sm capitalize px-4 py-2"
         >
           {label}
         </Button>
@@ -53,17 +54,20 @@ export default function ThemeSwitcher() {
   return (
     <Card className="sm:col-span-2">
       <CardHeader>
-        <CardTitle>Select Appearance</CardTitle>
+        <CardTitle className="text-base sm:text-lg">
+          Select Appearance
+        </CardTitle>
         <CardDescription>Choose between light and dark themes</CardDescription>
       </CardHeader>
-      <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+      <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
-          <p className="text-sm font-medium mb-2">Light Themes</p>
+          <p className="text-sm font-medium mb-3">Light Themes</p>
           {renderThemeButtons(lightThemes)}
         </div>
 
         <div>
-          <p className="text-sm font-medium mb-2">Dark Themes</p>
+          <p className="text-sm font-medium mb-3">Dark Themes</p>
           {renderThemeButtons(darkThemes)}
         </div>
       </CardContent>
