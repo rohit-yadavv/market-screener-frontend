@@ -29,21 +29,23 @@ export default function Dashboard() {
       </h1>
 
       <Tabs defaultValue="stocks" className="w-full">
-        <TabsList className="my-6 h-12 px-2">
-          <TabsTrigger className="cursor-pointer" value="stocks">
-            <LineChart className="w-4 h-4 mr-2" />
-            Alert Config
-          </TabsTrigger>
-          <TabsTrigger className="cursor-pointer" value="events">
-            <Zap className="w-4 h-4 mr-2" />
-            Past Events
-          </TabsTrigger>
-          <TabsTrigger className="cursor-pointer" value="settings">
-            <SettingsIcon className="w-4 h-4 mr-2" />
-            Settings
-          </TabsTrigger>
-        </TabsList>
-        <div className="p-6 ">
+        <div className="border-b border-border">
+          <TabsList className="my-6 h-12 px-2 w-full">
+            <TabsTrigger className="cursor-pointer" value="stocks">
+              <LineChart className="w-4 h-4 mr-2" />
+              Alert Config
+            </TabsTrigger>
+            <TabsTrigger className="cursor-pointer" value="events">
+              <Zap className="w-4 h-4 mr-2" />
+              Past Events
+            </TabsTrigger>
+            <TabsTrigger className="cursor-pointer" value="settings">
+              <SettingsIcon className="w-4 h-4 mr-2" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+        </div>
+        <div className="py-6 ">
           <TabsContent value="stocks">
             <AlertConfig />
           </TabsContent>

@@ -120,9 +120,13 @@ export default function PastEvents() {
       <h2 className="text-2xl font-bold mb-4">Past Events</h2>
 
       <Tabs defaultValue="macd">
-        <TabsList className="h-12 m-2">
-          <TabsTrigger value="macd">MACD Events</TabsTrigger>
-          <TabsTrigger value="price">Price Candle Events</TabsTrigger>
+        <TabsList className="h-12 my-6 mx-2 ">
+          <TabsTrigger className={"cursor-pointer"} value="macd">
+            MACD Events
+          </TabsTrigger>
+          <TabsTrigger className={"cursor-pointer"} value="price">
+            Price Candle Events
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="macd">
