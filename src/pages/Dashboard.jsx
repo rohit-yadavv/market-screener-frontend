@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import StockSelector from "../components/MacdAlertConfig";
-import MacdPastEvents from "@/components/MacdPastEvents";
+import AlertConfig from "../components/AlertConfig";
+import PastEvents from "@/components/PastEvents";
 import { subscribeToPushNotifications } from "../utils/push.util";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { LineChart, SettingsIcon, Zap } from "lucide-react";
@@ -32,11 +32,11 @@ export default function Dashboard() {
         <TabsList className="my-6 h-12 px-2">
           <TabsTrigger className="cursor-pointer" value="stocks">
             <LineChart className="w-4 h-4 mr-2" />
-            MACD Alert Config
+            Alert Config
           </TabsTrigger>
           <TabsTrigger className="cursor-pointer" value="events">
             <Zap className="w-4 h-4 mr-2" />
-            MACD Past Events
+            Past Events
           </TabsTrigger>
           <TabsTrigger className="cursor-pointer" value="settings">
             <SettingsIcon className="w-4 h-4 mr-2" />
@@ -45,11 +45,11 @@ export default function Dashboard() {
         </TabsList>
         <div className="p-6 ">
           <TabsContent value="stocks">
-            <StockSelector />
+            <AlertConfig />
           </TabsContent>
 
           <TabsContent value="events">
-            <MacdPastEvents />
+            <PastEvents />
           </TabsContent>
 
           <TabsContent value="settings">

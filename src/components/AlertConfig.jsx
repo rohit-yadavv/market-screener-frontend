@@ -18,16 +18,21 @@ import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Minus, Plus, BarChart3, LineChart, Settings } from "lucide-react";
 
-export default function StockSelector() {
+export default function AlertConfig() {
   const [allSymbols, setAllSymbols] = useState([]);
   const [subscribedSymbols, setSubscribedSymbols] = useState([]);
   const [localSelected, setLocalSelected] = useState([]);
 
   const [symbolsLoading, setSymbolsLoading] = useState(true);
   const [subscribedLoading, setSubscribedLoading] = useState(true);
+
   const [threshold, setThreshold] = useState(-1);
   const [inputThreshold, setInputThreshold] = useState(-1);
   const [loadingThreshold, setLoadingThreshold] = useState(true);
+
+  const [priceThreshold, setPriceThreshold] = useState(-1);
+  const [inputPriceThreshold, setInputPriceThreshold] = useState(-1);
+  const [loadingPriceThreshold, setLoadingPriceThreshold] = useState(true);
 
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
@@ -35,17 +40,15 @@ export default function StockSelector() {
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [symbolRes, subRes, thresholdRes] = await Promise.all([
+        const [symbolRes, subRes, macdRes, priceRes] = await Promise.all([
           axios.get(`${BASE_URL}/user/symbols/all`, { withCredentials: true }),
           axios.get(`${BASE_URL}/user/symbols/subscribe/macd`, {
             withCredentials: true,
           }),
-          axios.get(`${BASE_URL}/user/macd-threshold`, {
-            withCredentials: true,
-          }),
+          axios.get(`${BASE_URL}/macd/threshold`, { withCredentials: true }),
+          axios.get(`${BASE_URL}/price/threshold`, { withCredentials: true }),
         ]);
 
-        console.log(subRes);
         if (symbolRes.data.success) {
           setAllSymbols(symbolRes.data.allSymbols || []);
         }
@@ -55,15 +58,22 @@ export default function StockSelector() {
           setLocalSelected(subRes.data.subscribedSymbolsForMACD);
         }
 
-        const value = thresholdRes.data.macdThreshold;
-        setThreshold(value);
-        setInputThreshold(value);
+        if (macdRes.data?.macdThreshold != null) {
+          setThreshold(macdRes.data.macdThreshold);
+          setInputThreshold(macdRes.data.macdThreshold);
+        }
+
+        if (priceRes.data?.priceInstanceThreshold != null) {
+          setPriceThreshold(priceRes.data.priceInstanceThreshold);
+          setInputPriceThreshold(priceRes.data.priceInstanceThreshold);
+        }
       } catch (err) {
         toast.error("Failed to load MACD config");
       } finally {
         setSymbolsLoading(false);
         setSubscribedLoading(false);
         setLoadingThreshold(false);
+        setLoadingPriceThreshold(false);
       }
     };
 
@@ -88,7 +98,7 @@ export default function StockSelector() {
     setLoadingThreshold(true);
     try {
       await axios.post(
-        `${BASE_URL}/user/macd-threshold`,
+        `${BASE_URL}/macd/threshold`,
         { threshold: value },
         { withCredentials: true }
       );
@@ -98,6 +108,29 @@ export default function StockSelector() {
       toast.error("Failed to update threshold");
     } finally {
       setLoadingThreshold(false);
+    }
+  };
+
+  const savePriceThreshold = async () => {
+    const value = Number(inputPriceThreshold);
+    if (isNaN(value) || value < 1 || value > 10) {
+      toast.error("Price threshold must be a number between 1 and 10");
+      return;
+    }
+
+    setLoadingPriceThreshold(true);
+    try {
+      await axios.post(
+        `${BASE_URL}/price/threshold`,
+        { threshold: value },
+        { withCredentials: true }
+      );
+      setPriceThreshold(value);
+      toast.success("Price candle threshold updated!");
+    } catch {
+      toast.error("Failed to update price threshold");
+    } finally {
+      setLoadingPriceThreshold(false);
     }
   };
 
@@ -277,15 +310,15 @@ export default function StockSelector() {
           </CardFooter>
         </Card>
 
-        {/* 3. Threshold Update Card */}
+        {/* 3. MACD Threshold Update Card */}
         <Card className="md:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="w-5 h-5" />
-              Threshold Settings
+              MACD Threshold
             </CardTitle>
             <CardDescription>
-              Set how many same-side crossovers trigger an alert.
+              Number of MACD crossovers on same side to trigger alert.
             </CardDescription>
           </CardHeader>
 
@@ -341,7 +374,82 @@ export default function StockSelector() {
               disabled={loadingThreshold || inputThreshold === threshold}
               className="w-full"
             >
-              {loadingThreshold ? "Saving..." : "Save Threshold"}
+              {loadingThreshold ? "Saving..." : "Save MACD Threshold"}
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* 4. Price Candle Threshold Card */}
+        <Card className="md:col-span-1">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Price Candle Threshold
+            </CardTitle>
+            <CardDescription>
+              Number of red candles with lower lows to trigger price alert.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <div className="flex flex-col items-center gap-6">
+              <div className="text-sm text-muted-foreground">
+                Current Threshold:{" "}
+                {loadingPriceThreshold ? (
+                  <Skeleton className="w-12 h-5 inline-block ml-2" />
+                ) : (
+                  <span className="font-semibold text-foreground">
+                    {priceThreshold}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center justify-center gap-3">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setInputPriceThreshold(Math.max(1, inputPriceThreshold - 1))
+                  }
+                >
+                  <Minus className="w-4 h-4" />
+                </Button>
+
+                <Input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={inputPriceThreshold}
+                  onChange={(e) =>
+                    setInputPriceThreshold(Number(e.target.value))
+                  }
+                  className="w-20 text-center text-lg font-bold"
+                />
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setInputPriceThreshold(
+                      Math.min(10, inputPriceThreshold + 1)
+                    )
+                  }
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex justify-center">
+            <Button
+              onClick={savePriceThreshold}
+              disabled={
+                loadingPriceThreshold || inputPriceThreshold === priceThreshold
+              }
+              className="w-full"
+            >
+              {loadingPriceThreshold ? "Saving..." : "Save Price Threshold"}
             </Button>
           </CardFooter>
         </Card>
