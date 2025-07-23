@@ -26,10 +26,7 @@ export default function PastEvents() {
         withCredentials: true,
       });
       if (res.data.success) {
-        const sorted = res.data.events.sort(
-          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-        );
-        setMacdEvents(sorted);
+        setMacdEvents(res.data.events);
       }
     } catch (err) {
       console.error("Failed to fetch MACD events:", err);
@@ -86,7 +83,7 @@ export default function PastEvents() {
             <CardHeader className="py-2 flex justify-between items-center">
               <CardTitle>{e.symbol}</CardTitle>
               <CardDescription>
-                {new Date(e.createdAt).toLocaleString()}
+                {new Date(e.datetime).toLocaleString()}
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-wrap items-center gap-2 pb-2">
