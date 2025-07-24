@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { format } from "date-fns";
 import { BASE_URL } from "../utils/api";
+
 import {
   Card,
   CardHeader,
@@ -12,45 +14,58 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Flame, Clock, TrendingDown, TrendingUp } from "lucide-react";
+import { Flame, Clock } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { DatePicker } from "./ui/date-picker";
+
+function formatDate(date) {
+  return format(date, "yyyy-MM-dd");
+}
 
 export default function PastEvents() {
   const [macdEvents, setMacdEvents] = useState([]);
   const [priceEvents, setPriceEvents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [dateRange, setDateRange] = useState(undefined);
 
-  const fetchMacdEvents = async () => {
-    try {
-      const res = await axios.get(`${BASE_URL}/macd/history`, {
-        withCredentials: true,
-      });
-      if (res.data.success) {
-        setMacdEvents(res.data.events);
-      }
-    } catch (err) {
-      console.error("Failed to fetch MACD events:", err);
+  const fetchEvents = async () => {
+    setLoading(true);
+
+    const params = {};
+    if (dateRange?.from && dateRange?.to) {
+      params.startDate = formatDate(dateRange.from);
+      params.endDate = formatDate(dateRange.to);
     }
-  };
 
-  const fetchPriceEvents = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/price/history`, {
-        withCredentials: true,
-      });
-      if (res.data.success) {
-        setPriceEvents(res.data.events);
+      const [macdRes, priceRes] = await Promise.all([
+        axios.get(`${BASE_URL}/macd/history`, {
+          withCredentials: true,
+          params,
+        }),
+        axios.get(`${BASE_URL}/price/history`, {
+          withCredentials: true,
+          params,
+        }),
+      ]);
+
+      if (macdRes.data.success) {
+        setMacdEvents(macdRes.data.events);
+      }
+
+      if (priceRes.data.success) {
+        setPriceEvents(priceRes.data.events);
       }
     } catch (err) {
-      console.error("Failed to fetch Price events:", err);
+      console.error("Failed to fetch events:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    setLoading(true);
-    Promise.all([fetchMacdEvents(), fetchPriceEvents()]).finally(() =>
-      setLoading(false)
-    );
+    fetchEvents(); // Initial load
   }, []);
 
   const renderEvents = (events, type) => {
@@ -106,8 +121,9 @@ export default function PastEvents() {
                   </Badge>
                 </>
               )}
-
-              {type === "price" && <Badge>Instance: {e.count}</Badge>}
+              {type === "price" && (
+                <Badge className="text-[11px]">Instance: {e.count}</Badge>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -117,16 +133,20 @@ export default function PastEvents() {
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold mb-4">Past Events</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+        <h2 className="text-2xl font-bold">Past Events</h2>
+        <div className="flex gap-3 items-center">
+          <DatePicker mode="range" value={dateRange} onChange={setDateRange} />
+          <Button onClick={fetchEvents} disabled={loading}>
+            Filter
+          </Button>
+        </div>
+      </div>
 
       <Tabs defaultValue="macd">
-        <TabsList className="h-12 my-6 mx-2 ">
-          <TabsTrigger className={"cursor-pointer"} value="macd">
-            MACD Events
-          </TabsTrigger>
-          <TabsTrigger className={"cursor-pointer"} value="price">
-            Price Candle Events
-          </TabsTrigger>
+        <TabsList className="h-12 my-4 mx-2">
+          <TabsTrigger value="macd">MACD Events</TabsTrigger>
+          <TabsTrigger value="price">Price Candle Events</TabsTrigger>
         </TabsList>
 
         <TabsContent value="macd">
