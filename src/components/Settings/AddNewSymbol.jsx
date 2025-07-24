@@ -8,14 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,6 +21,7 @@ import { Pencil, Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "../ui/badge";
+import { PopoverClose } from "@radix-ui/react-popover";
 
 export default function AddNewSymbol() {
   const [allSymbols, setAllSymbols] = useState([]);
@@ -100,11 +97,6 @@ export default function AddNewSymbol() {
   };
 
   const handleDeleteSymbol = async (symbolToDelete) => {
-    const confirm = window.confirm(
-      `Are you sure you want to delete "${symbolToDelete}"?`
-    );
-    if (!confirm) return;
-
     setDeletingSymbol(symbolToDelete);
     try {
       const res = await axios.delete(`${BASE_URL}/user/symbols/all`, {
@@ -171,14 +163,14 @@ export default function AddNewSymbol() {
                 <Badge
                   key={sym}
                   variant="outline"
-                  className="flex items-center justify-between gap-2 p-2 rounded-md "
+                  className="flex items-center justify-between gap-2 p-2 rounded-md"
                 >
                   <span className="font-medium">{sym}</span>
 
                   <div className="flex items-center gap-1">
-                    {/* Edit Symbol Dialog */}
-                    <Dialog>
-                      <DialogTrigger asChild>
+                    {/* Edit Popover */}
+                    <Popover>
+                      <PopoverTrigger asChild>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -190,47 +182,68 @@ export default function AddNewSymbol() {
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Edit Symbol</DialogTitle>
-                        </DialogHeader>
-                        <div className="py-4">
-                          <Label className="mb-1 block">New Symbol</Label>
-                          <Input
-                            value={editInput}
-                            onChange={(e) =>
-                              setEditInput(e.target.value.toUpperCase())
-                            }
-                            placeholder="e.g. AAPL"
-                          />
-                        </div>
-                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button variant="outline" disabled={editing}>
-                              Cancel
-                            </Button>
-                          </DialogClose>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-60 space-y-2">
+                        <Label className="block">Edit Symbol</Label>
+                        <Input
+                          value={editInput}
+                          onChange={(e) =>
+                            setEditInput(e.target.value.toUpperCase())
+                          }
+                          placeholder="e.g. AAPL"
+                        />
+                        <div className="flex justify-end gap-2 pt-2">
                           <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditSymbol("");
+                              setEditInput("");
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            size="sm"
                             onClick={handleSaveEditSymbol}
                             disabled={editing}
                           >
                             {editing ? "Saving..." : "Save"}
                           </Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
 
-                    {/* Delete Button */}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 p-0 text-red-500 hover:text-red-600"
-                      onClick={() => handleDeleteSymbol(sym)}
-                      disabled={deletingSymbol === sym}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {/* Delete Popover */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 p-0 text-red-500 hover:text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-52 text-sm space-y-2">
+                        <p>Are you sure you want to delete "{sym}"?</p>
+                        <div className="flex justify-end gap-2 pt-2">
+                          <PopoverClose>
+                            <Button variant="outline" size="sm">
+                              Cancel
+                            </Button>
+                          </PopoverClose>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteSymbol(sym)}
+                            disabled={deletingSymbol === sym}
+                          >
+                            {deletingSymbol === sym ? "Deleting..." : "Delete"}
+                          </Button>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </Badge>
               ))}

@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Label } from "@/components/ui/label";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -71,9 +72,9 @@ export default function Login() {
             }}
           >
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
+              <Label htmlFor="email" className="text-sm font-medium">
                 Email
-              </label>
+              </Label>
               <Input
                 id="email"
                 type="email"
@@ -85,9 +86,9 @@ export default function Login() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
+              <Label htmlFor="password" className="text-sm font-medium">
                 Password
-              </label>
+              </Label>
               <Input
                 id="password"
                 type="password"
