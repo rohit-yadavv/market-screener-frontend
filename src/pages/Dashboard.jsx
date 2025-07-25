@@ -1,10 +1,13 @@
 import { useEffect } from "react";
-import AlertConfig from "../components/AlertConfig";
-import PastEvents from "@/components/PastEvents";
 import { subscribeToPushNotifications } from "../utils/push.util";
+
+import AlertConfig from "../components/AlertConfig";
+import PastEvents from "../components/PastEvents";
+import Settings from "../components/Settings/Page";
+
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { LineChart, SettingsIcon, Zap } from "lucide-react";
-import Settings from "@/components/Settings/Page";
+import { LineChart, Settings as SettingsIcon, Zap } from "lucide-react";
+import RealtimeEvents from "@/components/RealTimeEvents";
 
 export default function Dashboard() {
   // Push Notification Setup
@@ -35,6 +38,10 @@ export default function Dashboard() {
               <LineChart className="w-4 h-4 mr-2" />
               Alert Config
             </TabsTrigger>
+            <TabsTrigger className="cursor-pointer" value="realtime">
+              <Zap className="w-4 h-4 mr-2" />
+              RealTime Events
+            </TabsTrigger>
             <TabsTrigger className="cursor-pointer" value="events">
               <Zap className="w-4 h-4 mr-2" />
               Past Events
@@ -45,9 +52,13 @@ export default function Dashboard() {
             </TabsTrigger>
           </TabsList>
         </div>
-        <div className="py-6 ">
+        <div className="py-6">
           <TabsContent value="stocks">
             <AlertConfig />
+          </TabsContent>
+
+          <TabsContent value="realtime">
+            <RealtimeEvents />
           </TabsContent>
 
           <TabsContent value="events">

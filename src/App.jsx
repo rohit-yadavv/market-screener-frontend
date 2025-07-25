@@ -5,6 +5,7 @@ import { useAuth } from "./hooks/useAuth.js";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect } from "react";
 import { initTheme } from "./lib/theme.js";
+import { SSEProvider } from "./context/SSEContext.jsx";
 
 function ProtectedRoute({ children, loading, isAuthenticated }) {
   if (loading) {
@@ -46,7 +47,9 @@ export default function App() {
         path="/"
         element={
           <ProtectedRoute loading={loading} isAuthenticated={isAuthenticated}>
-            <Dashboard />
+            <SSEProvider>
+              <Dashboard />
+            </SSEProvider>
           </ProtectedRoute>
         }
       />

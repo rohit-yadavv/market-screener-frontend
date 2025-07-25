@@ -208,12 +208,19 @@ export default function AlertConfig() {
             ) : (
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground font-medium">
-                  Current Threshold:
+                  Current MACD CrossOver Threshold:
                 </span>
                 <Badge>{threshold}</Badge>
-                <span className="text-muted-foreground">
-                  crosses required for alert
+              </div>
+            )}
+            {loadingPriceThreshold ? (
+              <Skeleton className="h-6 w-48 rounded-md" />
+            ) : (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground font-medium">
+                  Current Price Instance Threshold:
                 </span>
+                <Badge>{priceThreshold}</Badge>
               </div>
             )}
 
