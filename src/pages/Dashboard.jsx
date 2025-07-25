@@ -7,6 +7,7 @@ import Settings from "../components/Settings/Page";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
+  CircleAlert,
   History,
   LineChart,
   Radio,
@@ -41,7 +42,7 @@ export default function Dashboard() {
         <div className="border-b border-border">
           <TabsList className="my-6 h-12 px-2 w-full">
             <TabsTrigger className="cursor-pointer" value="stocks">
-              <LineChart className="w-4 h-4 mr-2" />
+              <CircleAlert className="w-4 h-4 mr-2" />
               Alert Config
             </TabsTrigger>
             <TabsTrigger className="cursor-pointer" value="realtime">
