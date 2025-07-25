@@ -6,7 +6,13 @@ import PastEvents from "../components/PastEvents";
 import Settings from "../components/Settings/Page";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { LineChart, Settings as SettingsIcon, Zap } from "lucide-react";
+import {
+  History,
+  LineChart,
+  Radio,
+  Settings as SettingsIcon,
+  Zap,
+} from "lucide-react";
 import RealtimeEvents from "@/components/RealTimeEvents";
 
 export default function Dashboard() {
@@ -39,11 +45,11 @@ export default function Dashboard() {
               Alert Config
             </TabsTrigger>
             <TabsTrigger className="cursor-pointer" value="realtime">
-              <Zap className="w-4 h-4 mr-2" />
+              <Radio className="w-4 h-4 mr-2" />
               RealTime Events
             </TabsTrigger>
             <TabsTrigger className="cursor-pointer" value="events">
-              <Zap className="w-4 h-4 mr-2" />
+              <History className="w-4 h-4 mr-2" />
               Past Events
             </TabsTrigger>
             <TabsTrigger className="cursor-pointer" value="settings">
