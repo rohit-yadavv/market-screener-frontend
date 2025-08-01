@@ -18,6 +18,7 @@ import { Flame, Clock } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "./ui/date-picker";
+import { Input } from "@/components/ui/input";
 
 function formatDate(date) {
   return format(date, "yyyy-MM-dd");
@@ -28,6 +29,7 @@ export default function PastEvents() {
   const [priceEvents, setPriceEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [dateRange, setDateRange] = useState(undefined);
+  const [symbol, setSymbol] = useState("");
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -36,6 +38,9 @@ export default function PastEvents() {
     if (dateRange?.from && dateRange?.to) {
       params.startDate = formatDate(dateRange.from);
       params.endDate = formatDate(dateRange.to);
+    }
+    if (symbol) {
+      params.symbol = symbol.trim().toUpperCase();
     }
 
     try {
@@ -65,7 +70,7 @@ export default function PastEvents() {
   };
 
   useEffect(() => {
-    fetchEvents(); // Initial load
+    fetchEvents();
   }, []);
 
   const renderEvents = (events, type) => {
@@ -135,10 +140,16 @@ export default function PastEvents() {
     <div className="w-full">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold">Past Events</h2>
-        <div className="flex gap-3 items-center">
+        <div className="flex flex-wrap gap-3 items-center">
+          <Input
+            placeholder="Filter Symbol"
+            value={symbol}
+            onChange={(e) => setSymbol(e.target.value)}
+            className="max-w-[180px] uppercase"
+          />
           <DatePicker mode="range" value={dateRange} onChange={setDateRange} />
           <Button onClick={fetchEvents} disabled={loading}>
-            Filter
+            Apply Filter
           </Button>
         </div>
       </div>

@@ -27,7 +27,7 @@ export function DatePicker(props) {
         return format(props.value, "PPP");
       }
     }
-    return "Pick a date";
+    return "Pick a Date";
   };
 
   return (
