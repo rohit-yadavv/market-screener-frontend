@@ -8,6 +8,8 @@ export const SSEProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    const audio = new Audio("/beep.mp3");
+
     const eventSource = new EventSource(`${BASE_URL}/sse`, {
       withCredentials: true,
     });
@@ -20,9 +22,12 @@ export const SSEProvider = ({ children }) => {
       try {
         const data = JSON.parse(e.data);
         setEvents((prevEvents) => [data, ...prevEvents].slice(0, 50));
+        audio.play().catch((error) => {
+          console.error("Error playing sound:", error);
+        });
         // eslint-disable-next-line no-unused-vars
       } catch (err) {
-        console.error("[SSE] Invalid JSON:", e.data);
+        console.error("Invalid JSON:");
       }
     };
 

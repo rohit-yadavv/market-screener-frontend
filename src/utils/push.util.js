@@ -9,14 +9,11 @@ export async function subscribeToPushNotifications(vapidKey) {
     applicationServerKey: urlBase64ToUint8Array(vapidKey),
   });
 
-  console.log("inside ")
-
-  const res = await axios.post(
+  await axios.post(
     `${BASE_URL}/push/subscribe`,
     { subscription: sub },
     { withCredentials: true }
   );
-  console.log(res.data)
 }
 
 function urlBase64ToUint8Array(base64String) {

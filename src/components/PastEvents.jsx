@@ -49,7 +49,7 @@ export function AlertCard({ event, type }) {
             </Badge>
             <Badge className="flex items-center gap-1 bg-yellow-100 text-yellow-800 text-[11px] font-medium px-2.5 py-0.5 border border-yellow-300 rounded-sm min-w-fit">
               <Clock className="w-3 h-3" />
-              Streak: {event.streak}
+              Count: {event.streak}
             </Badge>
           </>
         )}
