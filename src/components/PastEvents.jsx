@@ -24,6 +24,43 @@ function formatDate(date) {
   return format(date, "yyyy-MM-dd");
 }
 
+export function AlertCard({ event, type }) {
+  return (
+    <Card className="p-2 gap-0">
+      <CardHeader className="py-2 flex justify-between items-center">
+        <CardTitle>{event.symbol}</CardTitle>
+        <CardDescription>
+          {new Date(event.datetime).toLocaleString()}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-wrap items-center gap-2 pb-2">
+        {type === "macd" && (
+          <>
+            <Badge
+              variant="outline"
+              className={`flex items-center gap-1 capitalize text-[11px] font-medium px-2.5 py-0.5 rounded-sm min-w-fit ${
+                event.cycle === "positive"
+                  ? "text-green-700 border-green-300 bg-green-50"
+                  : "text-red-700 border-red-300 bg-red-50"
+              }`}
+            >
+              <Flame className="w-3 h-3" />
+              {event.cycle} cycle
+            </Badge>
+            <Badge className="flex items-center gap-1 bg-yellow-100 text-yellow-800 text-[11px] font-medium px-2.5 py-0.5 border border-yellow-300 rounded-sm min-w-fit">
+              <Clock className="w-3 h-3" />
+              Streak: {event.streak}
+            </Badge>
+          </>
+        )}
+        {type === "price" && (
+          <Badge className="text-[11px]">Instance: {event.count}</Badge>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function PastEvents() {
   const [macdEvents, setMacdEvents] = useState([]);
   const [priceEvents, setPriceEvents] = useState([]);
@@ -99,38 +136,7 @@ export default function PastEvents() {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {events.map((e, i) => (
-          <Card key={i} className="p-2 gap-0">
-            <CardHeader className="py-2 flex justify-between items-center">
-              <CardTitle>{e.symbol}</CardTitle>
-              <CardDescription>
-                {new Date(e.datetime).toLocaleString()}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex flex-wrap items-center gap-2 pb-2">
-              {type === "macd" && (
-                <>
-                  <Badge
-                    variant="outline"
-                    className={`flex items-center gap-1 capitalize text-[11px] font-medium px-2.5 py-0.5 rounded-sm min-w-fit ${
-                      e.cycle === "positive"
-                        ? "text-green-700 border-green-300 bg-green-50"
-                        : "text-red-700 border-red-300 bg-red-50"
-                    }`}
-                  >
-                    <Flame className="w-3 h-3" />
-                    {e.cycle} cycle
-                  </Badge>
-                  <Badge className="flex items-center gap-1 bg-yellow-100 text-yellow-800 text-[11px] font-medium px-2.5 py-0.5 border border-yellow-300 rounded-sm min-w-fit">
-                    <Clock className="w-3 h-3" />
-                    Streak: {e.streak}
-                  </Badge>
-                </>
-              )}
-              {type === "price" && (
-                <Badge className="text-[11px]">Instance: {e.count}</Badge>
-              )}
-            </CardContent>
-          </Card>
+          <AlertCard event={e} type={type} key={i} />
         ))}
       </div>
     );
