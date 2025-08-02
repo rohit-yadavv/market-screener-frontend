@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Minus, Plus, BarChart3, LineChart, Settings } from "lucide-react";
+import { Minus, Plus, BarChart3, LineChart, Bell } from "lucide-react";
 
 export default function AlertConfig() {
   const [allSymbols, setAllSymbols] = useState([]);
@@ -188,7 +188,7 @@ export default function AlertConfig() {
 
   return (
     <div className="w-full">
-      <h2 className="text-2xl font-bold  mb-6">MACD Alert Config</h2>
+      <h2 className="text-2xl font-bold  mb-6">Alert Config</h2>
       <div className="grid gap-6 md:grid-cols-3">
         {/* 1. Status Overview */}
         <Card className="col-span-1">
@@ -198,7 +198,7 @@ export default function AlertConfig() {
               Overview
             </CardTitle>
             <CardDescription>
-              Your current threshold and subscribed symbols.
+              Your current alert settings and tracked stocks.
             </CardDescription>
           </CardHeader>
 
@@ -208,7 +208,7 @@ export default function AlertConfig() {
             ) : (
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground font-medium">
-                  Current MACD CrossOver Threshold:
+                  Current MACD Cycles Threshold:
                 </span>
                 <Badge>{threshold}</Badge>
               </div>
@@ -226,7 +226,7 @@ export default function AlertConfig() {
 
             <div>
               <p className="text-sm font-medium text-muted-foreground mb-2">
-                Tracked Symbols{" "}
+                Tracked Stocks{" "}
                 {subscribedLoading ? null : `(${subscribedSymbols.length})`}
               </p>
 
@@ -246,7 +246,7 @@ export default function AlertConfig() {
                 </div>
               ) : (
                 <p className="text-sm italic text-muted-foreground">
-                  No symbols currently tracked.
+                  No stocks are being tracked.
                 </p>
               )}
             </div>
@@ -321,18 +321,18 @@ export default function AlertConfig() {
         <Card className="md:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              MACD Threshold
+              <Bell className="w-5 h-5" />
+              MACD Cycles Alert
             </CardTitle>
             <CardDescription>
-              Number of MACD crossovers on same side to trigger alert.
+              Set the number of MACD cycles needed to trigger an alert.
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <div className="flex flex-col items-center gap-6">
               <div className="text-sm text-muted-foreground">
-                Current Threshold:{" "}
+                Current Cycles:{" "}
                 {loadingThreshold ? (
                   <Skeleton className="w-12 h-5 inline-block ml-2" />
                 ) : (
@@ -381,7 +381,7 @@ export default function AlertConfig() {
               disabled={loadingThreshold || inputThreshold === threshold}
               className="w-full"
             >
-              {loadingThreshold ? "Saving..." : "Save MACD Threshold"}
+              {loadingThreshold ? "Saving..." : "Save Cycles"}
             </Button>
           </CardFooter>
         </Card>
@@ -390,18 +390,19 @@ export default function AlertConfig() {
         <Card className="md:col-span-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              Price Candle Threshold
+              <Bell className="w-5 h-5" />
+              Price Candle Alert
             </CardTitle>
             <CardDescription>
-              Number of red candles with lower lows to trigger price alert.
+              Number of consecutive candles in a trend (up or down) to trigger
+              an alert.
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             <div className="flex flex-col items-center gap-6">
               <div className="text-sm text-muted-foreground">
-                Current Threshold:{" "}
+                Current Candle Count:{" "}
                 {loadingPriceThreshold ? (
                   <Skeleton className="w-12 h-5 inline-block ml-2" />
                 ) : (
