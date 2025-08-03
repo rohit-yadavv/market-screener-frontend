@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Flame, Clock } from "lucide-react";
+import { Flame, Clock, TrendingUp, TrendingDown } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "./ui/date-picker";
@@ -25,6 +25,8 @@ function formatDate(date) {
 }
 
 export function AlertCard({ event, type }) {
+  if (!event) return null;
+
   return (
     <Card className="p-2 gap-0">
       <CardHeader className="py-2 flex justify-between items-center">
@@ -34,7 +36,7 @@ export function AlertCard({ event, type }) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-wrap items-center gap-2 pb-2">
-        {type === "macd" && (
+        {type === "macd_cycle" && (
           <>
             <Badge
               variant="outline"
@@ -49,12 +51,48 @@ export function AlertCard({ event, type }) {
             </Badge>
             <Badge className="flex items-center gap-1 bg-yellow-100 text-yellow-800 text-[11px] font-medium px-2.5 py-0.5 border border-yellow-300 rounded-sm min-w-fit">
               <Clock className="w-3 h-3" />
-              Count: {event.streak}
+              Count: {event.count}
             </Badge>
           </>
         )}
-        {type === "price" && (
-          <Badge className="text-[11px]">Instance: {event.count}</Badge>
+        {type === "price_action" && (
+          <>
+            <Badge
+              variant="outline"
+              className={`flex items-center gap-1 capitalize text-[11px] font-medium px-2.5 py-0.5 rounded-sm min-w-fit ${
+                event.cycle === "positive"
+                  ? "text-green-700 border-green-300 bg-green-50"
+                  : "text-red-700 border-red-300 bg-red-50"
+              }`}
+            >
+              Price Action: {event.cycle}
+            </Badge>
+            <Badge className="flex items-center gap-1 bg-blue-100 text-blue-800 text-[11px] font-medium px-2.5 py-0.5 border border-blue-300 rounded-sm min-w-fit">
+              Instances: {event.count}
+            </Badge>
+          </>
+        )}
+        {type === "high_low" && (
+          <>
+            <Badge
+              variant="outline"
+              className={`flex items-center gap-1 capitalize text-[11px] font-medium px-2.5 py-0.5 rounded-sm min-w-fit ${
+                event.structure === "high"
+                  ? "text-green-700 border-green-300 bg-green-50"
+                  : "text-red-700 border-red-300 bg-red-50"
+              }`}
+            >
+              {event.structure === "high" ? (
+                <TrendingUp className="w-3 h-3" />
+              ) : (
+                <TrendingDown className="w-3 h-3" />
+              )}
+              New {event.structure === "high" ? "Highest High" : "Lowest Low"}
+            </Badge>
+            <Badge className="flex items-center gap-1 bg-gray-100 text-gray-800 text-[11px] font-medium px-2.5 py-0.5 border border-gray-300 rounded-sm min-w-fit">
+              @ {event.value.toFixed(2)}
+            </Badge>
+          </>
         )}
       </CardContent>
     </Card>
@@ -64,6 +102,7 @@ export function AlertCard({ event, type }) {
 export default function PastEvents() {
   const [macdEvents, setMacdEvents] = useState([]);
   const [priceEvents, setPriceEvents] = useState([]);
+  const [highLowEvents, setHighLowEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [dateRange, setDateRange] = useState(undefined);
   const [symbol, setSymbol] = useState("");
@@ -81,7 +120,7 @@ export default function PastEvents() {
     }
 
     try {
-      const [macdRes, priceRes] = await Promise.all([
+      const [macdRes, priceRes, highLowRes] = await Promise.all([
         axios.get(`${BASE_URL}/macd/history`, {
           withCredentials: true,
           params,
@@ -90,15 +129,15 @@ export default function PastEvents() {
           withCredentials: true,
           params,
         }),
+        axios.get(`${BASE_URL}/highlow/history`, {
+          withCredentials: true,
+          params,
+        }),
       ]);
 
-      if (macdRes.data.success) {
-        setMacdEvents(macdRes.data.events);
-      }
-
-      if (priceRes.data.success) {
-        setPriceEvents(priceRes.data.events);
-      }
+      if (macdRes.data.success) setMacdEvents(macdRes.data.events);
+      if (priceRes.data.success) setPriceEvents(priceRes.data.events);
+      if (highLowRes.data.success) setHighLowEvents(highLowRes.data.events);
     } catch (err) {
       console.error("Failed to fetch events:", err);
     } finally {
@@ -130,7 +169,11 @@ export default function PastEvents() {
     }
 
     if (!events.length) {
-      return <p className="text-gray-500">No {type} events found yet.</p>;
+      return (
+        <p className="text-gray-500">
+          No events found for the selected criteria.
+        </p>
+      );
     }
 
     return (
@@ -163,14 +206,18 @@ export default function PastEvents() {
       <Tabs defaultValue="macd">
         <TabsList className="h-12 my-4 mx-2">
           <TabsTrigger value="macd">MACD Events</TabsTrigger>
-          <TabsTrigger value="price">Price Candle Events</TabsTrigger>
+          <TabsTrigger value="price">Price Events</TabsTrigger>
+          <TabsTrigger value="high_low">High/Low Events</TabsTrigger>
         </TabsList>
 
         <TabsContent value="macd">
-          {renderEvents(macdEvents, "macd")}
+          {renderEvents(macdEvents, "macd_cycle")}
         </TabsContent>
         <TabsContent value="price">
-          {renderEvents(priceEvents, "price")}
+          {renderEvents(priceEvents, "price_action")}
+        </TabsContent>
+        <TabsContent value="high_low">
+          {renderEvents(highLowEvents, "high_low")}
         </TabsContent>
       </Tabs>
     </div>

@@ -22,8 +22,12 @@ const RealtimeEvents = () => {
         </Badge>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {events.map((event, index) => (
-          <AlertCard key={index} event={event} type={event.type} />
+        {events.map((sseEvent, index) => (
+          <AlertCard
+            key={index}
+            event={{ symbol: sseEvent.symbol, ...sseEvent.event }}
+            type={sseEvent.type}
+          />
         ))}
       </div>
     </div>
