@@ -32,7 +32,9 @@ export function AlertCard({ event, type }) {
       <CardHeader className="py-2 flex justify-between items-center">
         <CardTitle>{event.symbol}</CardTitle>
         <CardDescription>
-          {new Date(event.datetime).toLocaleString()}
+          {event.datetime
+            ? format(new Date(event.datetime), "yyyy-MM-dd HH:mm")
+            : "Invalid date"}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-wrap items-center gap-2 pb-2">
@@ -51,7 +53,7 @@ export function AlertCard({ event, type }) {
             </Badge>
             <Badge className="flex items-center gap-1 bg-yellow-100 text-yellow-800 text-[11px] font-medium px-2.5 py-0.5 border border-yellow-300 rounded-sm min-w-fit">
               <Clock className="w-3 h-3" />
-              Count: {event.count}
+              Count: {event.streak}
             </Badge>
           </>
         )}
@@ -77,17 +79,17 @@ export function AlertCard({ event, type }) {
             <Badge
               variant="outline"
               className={`flex items-center gap-1 capitalize text-[11px] font-medium px-2.5 py-0.5 rounded-sm min-w-fit ${
-                event.structure === "high"
+                event.valueType === "high"
                   ? "text-green-700 border-green-300 bg-green-50"
                   : "text-red-700 border-red-300 bg-red-50"
               }`}
             >
-              {event.structure === "high" ? (
+              {event.valueType === "high" ? (
                 <TrendingUp className="w-3 h-3" />
               ) : (
                 <TrendingDown className="w-3 h-3" />
               )}
-              New {event.structure === "high" ? "Highest High" : "Lowest Low"}
+              New {event.valueType === "high" ? "Highest High" : "Lowest Low"}
             </Badge>
             <Badge className="flex items-center gap-1 bg-gray-100 text-gray-800 text-[11px] font-medium px-2.5 py-0.5 border border-gray-300 rounded-sm min-w-fit">
               @ {event.value.toFixed(2)}
