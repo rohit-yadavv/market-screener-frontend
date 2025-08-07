@@ -4,17 +4,17 @@ import { subscribeToPushNotifications } from "../utils/push.util";
 import AlertConfig from "../components/AlertConfig";
 import PastEvents from "../components/PastEvents";
 import Settings from "../components/Settings/Page";
+import RealtimeEvents from "@/components/RealTimeEvents";
+import TradeHistory from "@/components/TradeHistory";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   CircleAlert,
   History,
-  LineChart,
   Radio,
   Settings as SettingsIcon,
-  Zap,
+  ArrowLeftRight,
 } from "lucide-react";
-import RealtimeEvents from "@/components/RealTimeEvents";
 
 export default function Dashboard() {
   // Push Notification Setup
@@ -53,6 +53,14 @@ export default function Dashboard() {
               <History className="w-4 h-4 mr-2" />
               Past Events
             </TabsTrigger>
+
+            {/* --- ADD THIS NEW TAB TRIGGER --- */}
+            <TabsTrigger className="cursor-pointer" value="trades">
+              <ArrowLeftRight className="w-4 h-4 mr-2" />
+              Trade History
+            </TabsTrigger>
+            {/* ---------------------------------- */}
+
             <TabsTrigger className="cursor-pointer" value="settings">
               <SettingsIcon className="w-4 h-4 mr-2" />
               Settings
@@ -70,6 +78,10 @@ export default function Dashboard() {
 
           <TabsContent value="events">
             <PastEvents />
+          </TabsContent>
+
+          <TabsContent value="trades">
+            <TradeHistory />
           </TabsContent>
 
           <TabsContent value="settings">
