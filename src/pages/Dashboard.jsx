@@ -40,30 +40,45 @@ export default function Dashboard() {
 
       <Tabs defaultValue="stocks" className="w-full">
         <div className="border-b border-border">
-          <TabsList className="my-6 h-12 px-2 w-full">
-            <TabsTrigger className="cursor-pointer" value="stocks">
-              <CircleAlert className="w-4 h-4 mr-2" />
-              Alert Config
-            </TabsTrigger>
-            <TabsTrigger className="cursor-pointer" value="realtime">
-              <Radio className="w-4 h-4 mr-2" />
-              RealTime Events
-            </TabsTrigger>
-            <TabsTrigger className="cursor-pointer" value="events">
-              <History className="w-4 h-4 mr-2" />
-              Past Events
+          <TabsList className="my-6 h-12 px-2 w-full flex gap-2 justify-between">
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
+              value="stocks"
+            >
+              <CircleAlert className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
+              <span className="hidden sm:inline">Alert Config</span>
             </TabsTrigger>
 
-            {/* --- ADD THIS NEW TAB TRIGGER --- */}
-            <TabsTrigger className="cursor-pointer" value="trades">
-              <ArrowLeftRight className="w-4 h-4 mr-2" />
-              Trade History
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
+              value="realtime"
+            >
+              <Radio className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
+              <span className="hidden sm:inline">Realtime</span>
             </TabsTrigger>
-            {/* ---------------------------------- */}
 
-            <TabsTrigger className="cursor-pointer" value="settings">
-              <SettingsIcon className="w-4 h-4 mr-2" />
-              Settings
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
+              value="events"
+            >
+              <History className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
+              <span className="hidden sm:inline">Past Events</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
+              value="trades"
+            >
+              <ArrowLeftRight className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
+              <span className="hidden sm:inline">Trades</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
+              value="settings"
+            >
+              <SettingsIcon className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
+              <span className="hidden sm:inline">Settings</span>
             </TabsTrigger>
           </TabsList>
         </div>
