@@ -14,7 +14,14 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Flame, Clock, TrendingUp, TrendingDown, Repeat } from "lucide-react";
+import {
+  Flame,
+  Clock,
+  TrendingUp,
+  TrendingDown,
+  Repeat,
+  RefreshCw,
+} from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "./ui/date-picker";
@@ -218,6 +225,18 @@ export default function PastEvents() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold">Past Events</h2>
         <div className="flex flex-wrap gap-3 items-center">
+          <Button
+            variant="outline"
+            onClick={fetchEvents}
+            disabled={loading}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+
+          <div className="w-px h-7 bg-border mx-3" />
+
           <Input
             placeholder="Filter Symbol"
             value={symbol}

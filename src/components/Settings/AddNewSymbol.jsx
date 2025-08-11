@@ -193,16 +193,11 @@ export default function AddNewSymbol() {
                           placeholder="e.g. AAPL"
                         />
                         <div className="flex justify-end gap-2 pt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setEditSymbol("");
-                              setEditInput("");
-                            }}
-                          >
-                            Cancel
-                          </Button>
+                          <PopoverClose>
+                            <Button variant="outline" size="sm">
+                              Cancel
+                            </Button>
+                          </PopoverClose>
                           <Button
                             size="sm"
                             onClick={handleSaveEditSymbol}

@@ -23,6 +23,7 @@ import {
   AlertCircle,
   CheckCircle2,
   HelpCircle,
+  RefreshCw,
 } from "lucide-react";
 
 function TradeCard({ trade }) {
@@ -174,6 +175,17 @@ export default function TradeHistory() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
         <h2 className="text-2xl font-bold">Trade History</h2>
         <div className="flex flex-wrap gap-3 items-center">
+          <Button
+            variant="outline"
+            onClick={fetchTradeEvents}
+            disabled={loading}
+          >
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+
+          <div className="w-px h-7 bg-border mx-3" />
+
           <Input
             placeholder="Filter Symbol"
             value={symbol}
