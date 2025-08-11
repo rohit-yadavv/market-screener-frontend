@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { format } from "date-fns";
 import { BASE_URL } from "../utils/api";
@@ -17,6 +17,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "./ui/date-picker";
 import { Input } from "@/components/ui/input";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationLink,
+  PaginationNext,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 import {
   ArrowDown,
   ArrowUp,
@@ -100,52 +109,77 @@ function TradeCard({ trade }) {
   );
 }
 export default function TradeHistory() {
-  const [tradeEvents, setTradeEvents] = useState([]);
+  const [data, setData] = useState({ trades: [], totalPages: 1 });
+  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
+
   const [dateRange, setDateRange] = useState(undefined);
   const [symbol, setSymbol] = useState("");
 
-  const fetchTradeEvents = async () => {
-    setLoading(true);
+  const PAGE_LIMIT = 20;
 
-    const params = {};
-    if (dateRange?.from && dateRange?.to) {
-      params.startDate = format(dateRange.from, "yyyy-MM-dd");
-      params.endDate = format(dateRange.to, "yyyy-MM-dd");
-    }
-    if (symbol) {
-      params.symbol = symbol.trim().toUpperCase();
-    }
+  const fetchTradeEvents = useCallback(
+    async (page) => {
+      setLoading(true);
+      const params = {
+        page,
+        limit: PAGE_LIMIT,
+      };
+      if (dateRange?.from && dateRange?.to) {
+        params.startDate = format(dateRange.from, "yyyy-MM-dd");
+        params.endDate = format(dateRange.to, "yyyy-MM-dd");
+      }
+      if (symbol) {
+        params.symbol = symbol.trim().toUpperCase();
+      }
 
-    try {
-      const res = await axios.get(`${BASE_URL}/trades`, {
-        withCredentials: true,
-        params,
-      });
-      setTradeEvents(res.data);
-    } catch (err) {
-      console.error("Failed to fetch trade events:", err);
-    } finally {
-      setLoading(false);
+      try {
+        const res = await axios.get(`${BASE_URL}/trades`, {
+          withCredentials: true,
+          params,
+        });
+        setData(res.data);
+      } catch (err) {
+        console.error("Failed to fetch trade events:", err);
+        setData({ trades: [], totalPages: 1 });
+      } finally {
+        setLoading(false);
+      }
+    },
+    [dateRange, symbol]
+  );
+
+  useEffect(() => {
+    fetchTradeEvents(currentPage);
+  }, [currentPage, fetchTradeEvents]);
+
+  const handleFilterApply = () => {
+    if (currentPage === 1) {
+      fetchTradeEvents(1);
+    } else {
+      setCurrentPage(1);
     }
   };
 
-  useEffect(() => {
-    fetchTradeEvents();
-  }, []);
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= data.totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   const renderContent = () => {
     if (loading) {
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 15 }).map((_, i) => (
             <Card key={i} className="p-3">
               <CardContent className="space-y-2">
-                <Skeleton className="h-5 w-1/3" />
+                <Skeleton className="h-6 w-1/3" />
                 <div className="flex gap-2">
                   <Skeleton className="h-4 w-16 rounded-full" />
                   <Skeleton className="h-4 w-20 rounded-full" />
                 </div>
+                <Skeleton className="h-4 w-full rounded-full" />
               </CardContent>
             </Card>
           ))}
@@ -153,9 +187,9 @@ export default function TradeHistory() {
       );
     }
 
-    if (!tradeEvents.length) {
+    if (!data.trades.length) {
       return (
-        <p className="text-gray-500">
+        <p className="text-gray-500 text-center py-10">
           No trade events found for the selected criteria.
         </p>
       );
@@ -163,7 +197,7 @@ export default function TradeHistory() {
 
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tradeEvents.map((trade) => (
+        {data.trades.map((trade) => (
           <TradeCard trade={trade} key={trade._id} />
         ))}
       </div>
@@ -177,15 +211,13 @@ export default function TradeHistory() {
         <div className="flex flex-wrap gap-3 items-center">
           <Button
             variant="outline"
-            onClick={fetchTradeEvents}
+            onClick={() => fetchTradeEvents(currentPage)}
             disabled={loading}
           >
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
-
-          <div className="w-px h-7 bg-border mx-3" />
-
+          <div className="w-px h-7 bg-border sm:mx-3" />
           <Input
             placeholder="Filter Symbol"
             value={symbol}
@@ -193,12 +225,53 @@ export default function TradeHistory() {
             className="max-w-[180px] uppercase"
           />
           <DatePicker mode="range" value={dateRange} onChange={setDateRange} />
-          <Button onClick={fetchTradeEvents} disabled={loading}>
+          <Button onClick={handleFilterApply} disabled={loading}>
             Apply Filter
           </Button>
         </div>
       </div>
+
       {renderContent()}
+
+      {data.totalPages > 1 && (
+        <div className="mt-8">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(currentPage - 1);
+                  }}
+                  disabled={currentPage === 1 || loading}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#" isActive>
+                  {currentPage}
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <span className="px-2 text-sm">of</span>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#">{data.totalPages}</PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handlePageChange(currentPage + 1);
+                  }}
+                  disabled={currentPage === data.totalPages || loading}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   );
 }
