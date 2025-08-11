@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Flame, Clock, TrendingUp, TrendingDown } from "lucide-react";
+import { Flame, Clock, TrendingUp, TrendingDown, Repeat } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "./ui/date-picker";
@@ -96,6 +96,25 @@ export function AlertCard({ event, type }) {
             </Badge>
           </>
         )}
+        {type === "trend_continuation" && (
+          <>
+            <Badge
+              variant="outline"
+              className={`flex items-center gap-1 capitalize text-[11px] font-medium px-2.5 py-0.5 rounded-sm min-w-fit ${
+                event.cycle === "positive"
+                  ? "text-green-700 border-green-300 bg-green-50"
+                  : "text-red-700 border-red-300 bg-red-50"
+              }`}
+            >
+              <Repeat className="w-3 h-3" />
+              {event.cycle} sequence
+            </Badge>
+            <Badge className="flex items-center gap-1 bg-purple-100 text-purple-800 text-[11px] font-medium px-2.5 py-0.5 border border-purple-300 rounded-sm min-w-fit">
+              <Clock className="w-3 h-3" />
+              Count: {event.count}
+            </Badge>
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -105,6 +124,7 @@ export default function PastEvents() {
   const [macdEvents, setMacdEvents] = useState([]);
   const [priceEvents, setPriceEvents] = useState([]);
   const [highLowEvents, setHighLowEvents] = useState([]);
+  const [trendContinuationEvents, setTrendContinuationEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [dateRange, setDateRange] = useState(undefined);
   const [symbol, setSymbol] = useState("");
@@ -122,7 +142,7 @@ export default function PastEvents() {
     }
 
     try {
-      const [macdRes, priceRes, highLowRes] = await Promise.all([
+      const [macdRes, priceRes, highLowRes, trendRes] = await Promise.all([
         axios.get(`${BASE_URL}/macd/history`, {
           withCredentials: true,
           params,
@@ -135,11 +155,17 @@ export default function PastEvents() {
           withCredentials: true,
           params,
         }),
+        axios.get(`${BASE_URL}/trend-continuation/history`, {
+          withCredentials: true,
+          params,
+        }),
       ]);
 
       if (macdRes.data.success) setMacdEvents(macdRes.data.events);
       if (priceRes.data.success) setPriceEvents(priceRes.data.events);
       if (highLowRes.data.success) setHighLowEvents(highLowRes.data.events);
+      if (trendRes.data.success)
+        setTrendContinuationEvents(trendRes.data.events);
     } catch (err) {
       console.error("Failed to fetch events:", err);
     } finally {
@@ -209,6 +235,9 @@ export default function PastEvents() {
         <TabsList className="h-12 my-4 mx-2">
           <TabsTrigger value="macd">MACD Events</TabsTrigger>
           <TabsTrigger value="price">Price Events</TabsTrigger>
+          <TabsTrigger value="trend_continuation">
+            Trend Continuation
+          </TabsTrigger>
           <TabsTrigger value="high_low">High/Low Events</TabsTrigger>
         </TabsList>
 
@@ -217,6 +246,9 @@ export default function PastEvents() {
         </TabsContent>
         <TabsContent value="price">
           {renderEvents(priceEvents, "price_action")}
+        </TabsContent>
+        <TabsContent value="trend_continuation">
+          {renderEvents(trendContinuationEvents, "trend_continuation")}
         </TabsContent>
         <TabsContent value="high_low">
           {renderEvents(highLowEvents, "high_low")}

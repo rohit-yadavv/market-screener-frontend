@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Minus, Plus, BarChart3, LineChart, Bell } from "lucide-react";
+import { Minus, Plus, BarChart3, LineChart, Bell, Repeat } from "lucide-react";
 
 export default function AlertConfig() {
   const [allSymbols, setAllSymbols] = useState([]);
@@ -34,20 +34,35 @@ export default function AlertConfig() {
   const [inputPriceThreshold, setInputPriceThreshold] = useState(-1);
   const [loadingPriceThreshold, setLoadingPriceThreshold] = useState(true);
 
+  const [trendContinuationThreshold, setTrendContinuationThreshold] =
+    useState(-1);
+  const [inputTrendContinuationThreshold, setInputTrendContinuationThreshold] =
+    useState(-1);
+  const [
+    loadingTrendContinuationThreshold,
+    setLoadingTrendContinuationThreshold,
+  ] = useState(true);
+
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [symbolRes, subRes, macdRes, priceRes] = await Promise.all([
-          axios.get(`${BASE_URL}/user/symbols/all`, { withCredentials: true }),
-          axios.get(`${BASE_URL}/user/symbols/subscribe/macd`, {
-            withCredentials: true,
-          }),
-          axios.get(`${BASE_URL}/macd/threshold`, { withCredentials: true }),
-          axios.get(`${BASE_URL}/price/threshold`, { withCredentials: true }),
-        ]);
+        const [symbolRes, subRes, macdRes, priceRes, trendRes] =
+          await Promise.all([
+            axios.get(`${BASE_URL}/user/symbols/all`, {
+              withCredentials: true,
+            }),
+            axios.get(`${BASE_URL}/user/symbols/subscribe/macd`, {
+              withCredentials: true,
+            }),
+            axios.get(`${BASE_URL}/macd/threshold`, { withCredentials: true }),
+            axios.get(`${BASE_URL}/price/threshold`, { withCredentials: true }),
+            axios.get(`${BASE_URL}/trend-continuation/threshold`, {
+              withCredentials: true,
+            }),
+          ]);
 
         if (symbolRes.data.success) {
           setAllSymbols(symbolRes.data.allSymbols || []);
@@ -67,13 +82,23 @@ export default function AlertConfig() {
           setPriceThreshold(priceRes.data.priceInstanceThreshold);
           setInputPriceThreshold(priceRes.data.priceInstanceThreshold);
         }
+
+        if (trendRes.data?.trendContinuationThreshold != null) {
+          setTrendContinuationThreshold(
+            trendRes.data.trendContinuationThreshold
+          );
+          setInputTrendContinuationThreshold(
+            trendRes.data.trendContinuationThreshold
+          );
+        }
       } catch (err) {
-        toast.error("Failed to load MACD config");
+        toast.error("Failed to load alert configs");
       } finally {
         setSymbolsLoading(false);
         setSubscribedLoading(false);
         setLoadingThreshold(false);
         setLoadingPriceThreshold(false);
+        setLoadingTrendContinuationThreshold(false);
       }
     };
 
@@ -134,6 +159,29 @@ export default function AlertConfig() {
     }
   };
 
+  const saveTrendContinuationThreshold = async () => {
+    const value = Number(inputTrendContinuationThreshold);
+    if (isNaN(value) || value < 1 || value > 10) {
+      toast.error("Threshold must be a number between 1 and 10");
+      return;
+    }
+
+    setLoadingTrendContinuationThreshold(true);
+    try {
+      await axios.post(
+        `${BASE_URL}/trend-continuation/threshold`,
+        { threshold: value },
+        { withCredentials: true }
+      );
+      setTrendContinuationThreshold(value);
+      toast.success("Trend Continuation threshold updated!");
+    } catch {
+      toast.error("Failed to update trend continuation threshold");
+    } finally {
+      setLoadingTrendContinuationThreshold(false);
+    }
+  };
+
   const handleSave = async () => {
     if (localSelected.length === 0) {
       toast.error("Select at least one symbol.");
@@ -189,9 +237,9 @@ export default function AlertConfig() {
   return (
     <div className="w-full">
       <h2 className="text-2xl font-bold  mb-6">Alert Config</h2>
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* 1. Status Overview */}
-        <Card className="col-span-1">
+        <Card className="col-span-1 lg:col-span-1 md:col-span-2">
           <CardHeader>
             <CardTitle className="text-xl font-semibold flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
@@ -202,13 +250,13 @@ export default function AlertConfig() {
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-2">
             {loadingThreshold ? (
               <Skeleton className="h-6 w-48 rounded-md" />
             ) : (
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground font-medium">
-                  Current MACD Cycles Threshold:
+                  MACD Cycles Threshold:
                 </span>
                 <Badge>{threshold}</Badge>
               </div>
@@ -218,9 +266,20 @@ export default function AlertConfig() {
             ) : (
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground font-medium">
-                  Current Price Instance Threshold:
+                  Price Instance Threshold:
                 </span>
                 <Badge>{priceThreshold}</Badge>
+              </div>
+            )}
+
+            {loadingTrendContinuationThreshold ? (
+              <Skeleton className="h-6 w-48 rounded-md" />
+            ) : (
+              <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground font-medium">
+                  Trend Continuation Threshold:
+                </span>
+                <Badge>{trendContinuationThreshold}</Badge>
               </div>
             )}
 
@@ -238,7 +297,7 @@ export default function AlertConfig() {
                     <Badge
                       key={sym}
                       variant="secondary"
-                      className="text-sm font-medium px-4 py-2"
+                      className="text-xs "
                     >
                       {sym}
                     </Badge>
@@ -458,6 +517,81 @@ export default function AlertConfig() {
               className="w-full"
             >
               {loadingPriceThreshold ? "Saving..." : "Save Price Threshold"}
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* ***  Trend Continuation Threshold Card *** */}
+        <Card className="md:col-span-1">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Repeat className="w-5 h-5" />
+              Trend Continuation
+            </CardTitle>
+            <CardDescription>
+              Sequence count for the Trend Continuation (N-P-N, P-N-P).
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center gap-6">
+              <div className="text-sm text-muted-foreground">
+                Current Sequence Count:{" "}
+                {loadingTrendContinuationThreshold ? (
+                  <Skeleton className="w-12 h-5 inline-block ml-2" />
+                ) : (
+                  <span className="font-semibold text-foreground">
+                    {trendContinuationThreshold}
+                  </span>
+                )}
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setInputTrendContinuationThreshold(
+                      Math.max(1, inputTrendContinuationThreshold - 1)
+                    )
+                  }
+                >
+                  <Minus className="w-4 h-4" />
+                </Button>
+                <Input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={inputTrendContinuationThreshold}
+                  onChange={(e) =>
+                    setInputTrendContinuationThreshold(Number(e.target.value))
+                  }
+                  className="w-20 text-center text-lg font-bold"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() =>
+                    setInputTrendContinuationThreshold(
+                      Math.min(10, inputTrendContinuationThreshold + 1)
+                    )
+                  }
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button
+              onClick={saveTrendContinuationThreshold}
+              disabled={
+                loadingTrendContinuationThreshold ||
+                inputTrendContinuationThreshold === trendContinuationThreshold
+              }
+              className="w-full"
+            >
+              {loadingTrendContinuationThreshold
+                ? "Saving..."
+                : "Save Sequence Count"}
             </Button>
           </CardFooter>
         </Card>
