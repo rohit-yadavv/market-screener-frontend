@@ -24,7 +24,6 @@ import {
   PaginationPrevious,
   PaginationLink,
   PaginationNext,
-  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import {
   ArrowDown,
@@ -108,57 +107,61 @@ function TradeCard({ trade }) {
     </Card>
   );
 }
+
 export default function TradeHistory() {
   const [data, setData] = useState({ trades: [], totalPages: 1 });
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
-  const [dateRange, setDateRange] = useState(undefined);
-  const [symbol, setSymbol] = useState("");
+  const [inputSymbol, setInputSymbol] = useState("");
+  const [inputDateRange, setInputDateRange] = useState(undefined);
+
+  const [appliedFilters, setAppliedFilters] = useState({
+    symbol: "",
+    dateRange: undefined,
+  });
 
   const PAGE_LIMIT = 20;
 
-  const fetchTradeEvents = useCallback(
-    async (page) => {
-      setLoading(true);
-      const params = {
-        page,
-        limit: PAGE_LIMIT,
-      };
-      if (dateRange?.from && dateRange?.to) {
-        params.startDate = format(dateRange.from, "yyyy-MM-dd");
-        params.endDate = format(dateRange.to, "yyyy-MM-dd");
-      }
-      if (symbol) {
-        params.symbol = symbol.trim().toUpperCase();
-      }
+  const fetchTradeEvents = useCallback(async (page, filters) => {
+    setLoading(true);
+    const params = {
+      page,
+      limit: PAGE_LIMIT,
+    };
 
-      try {
-        const res = await axios.get(`${BASE_URL}/trades`, {
-          withCredentials: true,
-          params,
-        });
-        setData(res.data);
-      } catch (err) {
-        console.error("Failed to fetch trade events:", err);
-        setData({ trades: [], totalPages: 1 });
-      } finally {
-        setLoading(false);
-      }
-    },
-    [dateRange, symbol]
-  );
+    if (filters.dateRange?.from && filters.dateRange?.to) {
+      params.startDate = format(filters.dateRange.from, "yyyy-MM-dd");
+      params.endDate = format(filters.dateRange.to, "yyyy-MM-dd");
+    }
+    if (filters.symbol) {
+      params.symbol = filters.symbol.trim().toUpperCase();
+    }
+
+    try {
+      const res = await axios.get(`${BASE_URL}/trades`, {
+        withCredentials: true,
+        params,
+      });
+      setData(res.data);
+    } catch (err) {
+      console.error("Failed to fetch trade events:", err);
+      setData({ trades: [], totalPages: 1 });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    fetchTradeEvents(currentPage);
-  }, [currentPage, fetchTradeEvents]);
+    fetchTradeEvents(currentPage, appliedFilters);
+  }, [currentPage, appliedFilters, fetchTradeEvents]);
 
   const handleFilterApply = () => {
-    if (currentPage === 1) {
-      fetchTradeEvents(1);
-    } else {
-      setCurrentPage(1);
-    }
+    setAppliedFilters({
+      symbol: inputSymbol,
+      dateRange: inputDateRange,
+    });
+    setCurrentPage(1);
   };
 
   const handlePageChange = (newPage) => {
@@ -211,7 +214,7 @@ export default function TradeHistory() {
         <div className="flex flex-wrap gap-3 items-center">
           <Button
             variant="outline"
-            onClick={() => fetchTradeEvents(currentPage)}
+            onClick={() => fetchTradeEvents(currentPage, appliedFilters)}
             disabled={loading}
           >
             <RefreshCw className="mr-2 h-4 w-4" />
@@ -220,11 +223,15 @@ export default function TradeHistory() {
           <div className="w-px h-7 bg-border sm:mx-3" />
           <Input
             placeholder="Filter Symbol"
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value)}
+            value={inputSymbol}
+            onChange={(e) => setInputSymbol(e.target.value)}
             className="max-w-[180px] uppercase"
           />
-          <DatePicker mode="range" value={dateRange} onChange={setDateRange} />
+          <DatePicker
+            mode="range"
+            value={inputDateRange}
+            onChange={setInputDateRange}
+          />
           <Button onClick={handleFilterApply} disabled={loading}>
             Apply Filter
           </Button>
