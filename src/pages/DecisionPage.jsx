@@ -1,10 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { BASE_URL } from "../utils/api";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardHeader,
@@ -13,6 +9,22 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Plus,
+  Minus,
+  Edit,
+  Trash2,
+  Check,
+  X,
+  Settings,
+  Target,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -25,38 +37,21 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Check,
-  X,
-  Bell,
-  BarChart3,
-  LineChart,
-  Repeat,
-  TrendingUp,
-  AlertTriangle,
-  Power,
-  PowerOff,
-  ChevronDown,
-  ChevronRight,
-  Settings,
-} from "lucide-react";
 
-export default function AlertConfig() {
-  const [allSymbols, setAllSymbols] = useState([]);
-  const [alertConfigs, setAlertConfigs] = useState([]);
+export default function DecisionPage() {
+  const [decisionConfigs, setDecisionConfigs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [allSymbols, setAllSymbols] = useState([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  // Form states for creating new alert config
+  // Form states for creating new decision config
   const [newName, setNewName] = useState("");
-  const [newAlertType, setNewAlertType] = useState("macd");
-  const [newThreshold, setNewThreshold] = useState(1);
+  const [newFirstCondition, setNewFirstCondition] = useState("macd");
+  const [newFirstConditionThreshold, setNewFirstConditionThreshold] =
+    useState(1);
+  const [newPriceConditionThreshold, setNewPriceConditionThreshold] =
+    useState(1);
   const [newSelectedSymbols, setNewSelectedSymbols] = useState([]);
   const [newSymbolSearch, setNewSymbolSearch] = useState("");
   const [creating, setCreating] = useState(false);
@@ -64,46 +59,51 @@ export default function AlertConfig() {
   // State for editing
   const [editingConfigId, setEditingConfigId] = useState(null);
   const [editName, setEditName] = useState("");
-  const [editAlertType, setEditAlertType] = useState("");
-  const [editThreshold, setEditThreshold] = useState(1);
+  const [editFirstCondition, setEditFirstCondition] = useState("");
+  const [editFirstConditionThreshold, setEditFirstConditionThreshold] =
+    useState(1);
+  const [editPriceConditionThreshold, setEditPriceConditionThreshold] =
+    useState(1);
   const [editSelectedSymbols, setEditSelectedSymbols] = useState([]);
   const [editSymbolSearch, setEditSymbolSearch] = useState("");
   const [updating, setUpdating] = useState(false);
 
-  // State for toggling active status
-  const [togglingStatus, setTogglingStatus] = useState({});
-
   useEffect(() => {
-    fetchAllData();
+    fetchAllDecisionConfigs();
+    fetchAllSymbols();
   }, []);
 
-  const fetchAllData = async () => {
+  const fetchAllDecisionConfigs = async () => {
     try {
       setLoading(true);
-      const [symbolRes, alertRes] = await Promise.all([
-        axios.get(`${BASE_URL}/user/symbols/all`, {
-          withCredentials: true,
-        }),
-        axios.get(`${BASE_URL}/alerts`, {
-          withCredentials: true,
-        }),
-      ]);
-
-      if (symbolRes.data.success) {
-        setAllSymbols(symbolRes.data.allSymbols || []);
-      }
-
-      if (alertRes.data.success) {
-        setAlertConfigs(alertRes.data.data);
+      const response = await axios.get(`${BASE_URL}/decisions`, {
+        withCredentials: true,
+      });
+      if (response.data.success) {
+        setDecisionConfigs(response.data.data);
       } else {
-        toast.error("Failed to load alert configurations.");
-        setError(alertRes.data.message);
+        toast.error("Failed to load decision configurations.");
+        setError(response.data.message);
       }
     } catch (err) {
-      toast.error("Error loading data.");
+      toast.error("Error loading decision configurations.");
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAllSymbols = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/user/symbols/all`, {
+        withCredentials: true,
+      });
+      if (response.data.success) {
+        setAllSymbols(response.data.allSymbols || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch all symbols:", err);
+      toast.error("Failed to fetch all symbols.");
     }
   };
 
@@ -119,41 +119,12 @@ export default function AlertConfig() {
     );
   };
 
-  const getAlertTypeIcon = (alertType) => {
-    switch (alertType) {
-      case "macd":
-        return <BarChart3 className="w-4 h-4" />;
-      case "trend_continuation":
-        return <Repeat className="w-4 h-4" />;
-      case "price_action":
-        return <LineChart className="w-4 h-4" />;
-      case "high_low":
-        return <TrendingUp className="w-4 h-4" />;
-      default:
-        return <Bell className="w-4 h-4" />;
-    }
-  };
-
-  const getAlertTypeLabel = (alertType) => {
-    switch (alertType) {
-      case "macd":
-        return "MACD Cycles";
-      case "trend_continuation":
-        return "Trend Continuation";
-      case "price_action":
-        return "Price Action";
-      case "high_low":
-        return "High/Low";
-      default:
-        return alertType;
-    }
-  };
-
-  const handleCreateAlert = async () => {
+  const handleCreateDecision = async () => {
     if (
       !newName ||
-      !newAlertType ||
-      newThreshold < 1 ||
+      !newFirstCondition ||
+      newFirstConditionThreshold < 1 ||
+      newPriceConditionThreshold < 1 ||
       newSelectedSymbols.length === 0
     ) {
       toast.error("Please fill all fields and add at least one symbol.");
@@ -163,31 +134,33 @@ export default function AlertConfig() {
     setCreating(true);
     try {
       const response = await axios.post(
-        `${BASE_URL}/alerts`,
+        `${BASE_URL}/decisions`,
         {
           name: newName,
-          alertType: newAlertType,
-          threshold: newThreshold,
+          firstCondition: newFirstCondition,
+          firstConditionThreshold: newFirstConditionThreshold,
+          priceConditionThreshold: newPriceConditionThreshold,
           symbols: newSelectedSymbols,
         },
         { withCredentials: true }
       );
 
       if (response.data.success) {
-        toast.success("Alert configuration created successfully!");
+        toast.success("Decision configuration created successfully!");
         setNewName("");
-        setNewAlertType("macd");
-        setNewThreshold(1);
+        setNewFirstCondition("macd");
+        setNewFirstConditionThreshold(1);
+        setNewPriceConditionThreshold(1);
         setNewSelectedSymbols([]);
         setNewSymbolSearch("");
         setIsCreateOpen(false);
-        fetchAllData();
+        fetchAllDecisionConfigs();
       } else {
-        toast.error("Failed to create alert configuration.");
+        toast.error("Failed to create decision configuration.");
       }
     } catch (err) {
-      toast.error("Error creating alert configuration.");
-      console.error("Create alert error:", err);
+      toast.error("Error creating decision configuration.");
+      console.error("Create decision error:", err);
     } finally {
       setCreating(false);
     }
@@ -196,8 +169,9 @@ export default function AlertConfig() {
   const handleEditClick = (config) => {
     setEditingConfigId(config._id);
     setEditName(config.name);
-    setEditAlertType(config.alertType);
-    setEditThreshold(config.threshold);
+    setEditFirstCondition(config.firstCondition);
+    setEditFirstConditionThreshold(config.firstConditionThreshold);
+    setEditPriceConditionThreshold(config.priceConditionThreshold);
     setEditSelectedSymbols(config.symbols);
     setEditSymbolSearch("");
   };
@@ -205,17 +179,19 @@ export default function AlertConfig() {
   const handleCancelEdit = () => {
     setEditingConfigId(null);
     setEditName("");
-    setEditAlertType("");
-    setEditThreshold(1);
+    setEditFirstCondition("");
+    setEditFirstConditionThreshold(1);
+    setEditPriceConditionThreshold(1);
     setEditSelectedSymbols([]);
     setEditSymbolSearch("");
   };
 
-  const handleUpdateAlert = async (id) => {
+  const handleUpdateDecision = async (id) => {
     if (
       !editName ||
-      !editAlertType ||
-      editThreshold < 1 ||
+      !editFirstCondition ||
+      editFirstConditionThreshold < 1 ||
+      editPriceConditionThreshold < 1 ||
       editSelectedSymbols.length === 0
     ) {
       toast.error("Please fill all fields and add at least one symbol.");
@@ -225,86 +201,53 @@ export default function AlertConfig() {
     setUpdating(true);
     try {
       const response = await axios.put(
-        `${BASE_URL}/alerts/${id}`,
+        `${BASE_URL}/decisions/${id}`,
         {
           name: editName,
-          alertType: editAlertType,
-          threshold: editThreshold,
+          firstCondition: editFirstCondition,
+          firstConditionThreshold: editFirstConditionThreshold,
+          priceConditionThreshold: editPriceConditionThreshold,
           symbols: editSelectedSymbols,
         },
         { withCredentials: true }
       );
 
       if (response.data.success) {
-        toast.success("Alert configuration updated successfully!");
+        toast.success("Decision configuration updated successfully!");
         setEditingConfigId(null);
-        fetchAllData();
+        fetchAllDecisionConfigs();
       } else {
-        toast.error("Failed to update alert configuration.");
+        toast.error("Failed to update decision configuration.");
       }
     } catch (err) {
-      toast.error("Error updating alert configuration.");
-      console.error("Update alert error:", err);
+      toast.error("Error updating decision configuration.");
+      console.error("Update decision error:", err);
     } finally {
       setUpdating(false);
     }
   };
 
-  const handleToggleActiveStatus = async (id, currentStatus) => {
-    setTogglingStatus((prev) => ({ ...prev, [id]: true }));
-
-    try {
-      const response = await axios.put(
-        `${BASE_URL}/alerts/${id}`,
-        {
-          isActive: !currentStatus,
-        },
-        { withCredentials: true }
-      );
-
-      if (response.data.success) {
-        const newStatus = !currentStatus;
-        toast.success(
-          `Alert configuration ${
-            newStatus ? "activated" : "deactivated"
-          } successfully!`
-        );
-
-        setAlertConfigs((prev) =>
-          prev.map((config) =>
-            config._id === id ? { ...config, isActive: newStatus } : config
-          )
-        );
-      } else {
-        toast.error("Failed to update alert status.");
-      }
-    } catch (err) {
-      toast.error("Error updating alert status.");
-      console.error("Toggle status error:", err);
-    } finally {
-      setTogglingStatus((prev) => ({ ...prev, [id]: false }));
-    }
-  };
-
-  const handleDeleteAlert = async (id) => {
-    if (!confirm("Are you sure you want to delete this alert configuration?")) {
+  const handleDeleteDecision = async (id) => {
+    if (
+      !confirm("Are you sure you want to delete this decision configuration?")
+    ) {
       return;
     }
 
     try {
-      const response = await axios.delete(`${BASE_URL}/alerts/${id}`, {
+      const response = await axios.delete(`${BASE_URL}/decisions/${id}`, {
         withCredentials: true,
       });
 
       if (response.data.success) {
-        toast.success("Alert configuration deleted successfully!");
-        fetchAllData();
+        toast.success("Decision configuration deleted successfully!");
+        fetchAllDecisionConfigs();
       } else {
-        toast.error("Failed to delete alert configuration.");
+        toast.error("Failed to delete decision configuration.");
       }
     } catch (err) {
-      toast.error("Error deleting alert configuration.");
-      console.error("Delete alert error:", err);
+      toast.error("Error deleting decision configuration.");
+      console.error("Delete decision error:", err);
     }
   };
 
@@ -320,7 +263,7 @@ export default function AlertConfig() {
     <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Alert Configurations</h2>
+          <h2 className="text-2xl font-bold">Decision Configurations</h2>
         </div>
         <Button onClick={() => setIsCreateOpen(!isCreateOpen)}>
           {isCreateOpen ? (
@@ -328,28 +271,30 @@ export default function AlertConfig() {
           ) : (
             <Plus className="w-4 h-4 mr-2" />
           )}
-          {isCreateOpen ? "Cancel" : "Create New Alert"}
+          {isCreateOpen ? "Cancel" : "Create New Decision"}
         </Button>
       </div>
-      {/* Create Alert Configuration */}{" "}
+
+      {/* Create New Configuration */}
       <Collapsible open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <CollapsibleContent>
           <Card className="border-2 border-dashed">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Plus className="w-5 h-5" />
-                Create New Alert Configuration
+                Create New Decision Configuration
               </CardTitle>
               <CardDescription>
-                Set up a new alert strategy for specific symbols
+                Set up automated trading strategies based on technical
+                conditions
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <Label htmlFor="alert-name">Configuration Name</Label>
+                  <Label htmlFor="decision-name">Configuration Name</Label>
                   <Input
-                    id="alert-name"
+                    id="decision-name"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     placeholder="e.g., My MACD Strategy"
@@ -357,34 +302,56 @@ export default function AlertConfig() {
                 </div>
 
                 <div>
-                  <Label htmlFor="alert-type">Alert Type</Label>
-                  <Select value={newAlertType} onValueChange={setNewAlertType}>
+                  <Label htmlFor="first-condition">First Condition</Label>
+                  <Select
+                    value={newFirstCondition}
+                    onValueChange={setNewFirstCondition}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select alert type" />
+                      <SelectValue placeholder="Select condition" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="macd">MACD Cycles</SelectItem>
+                      <SelectItem value="macd">MACD</SelectItem>
                       <SelectItem value="trend_continuation">
                         Trend Continuation
                       </SelectItem>
-                      <SelectItem value="price_action">Price Action</SelectItem>
-                      <SelectItem value="high_low">High/Low</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="threshold">Threshold</Label>
-                <Input
-                  id="threshold"
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={newThreshold}
-                  onChange={(e) => setNewThreshold(Number(e.target.value))}
-                  placeholder="Number of cycles/instances needed"
-                />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <Label htmlFor="first-threshold">
+                    First Condition Threshold
+                  </Label>
+                  <Input
+                    id="first-threshold"
+                    type="number"
+                    min={1}
+                    value={newFirstConditionThreshold}
+                    onChange={(e) =>
+                      setNewFirstConditionThreshold(Number(e.target.value))
+                    }
+                    placeholder="Number of cycles needed"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="price-threshold">
+                    Price Condition Threshold
+                  </Label>
+                  <Input
+                    id="price-threshold"
+                    type="number"
+                    min={1}
+                    value={newPriceConditionThreshold}
+                    onChange={(e) =>
+                      setNewPriceConditionThreshold(Number(e.target.value))
+                    }
+                    placeholder="Number of price instances needed"
+                  />
+                </div>
               </div>
 
               <div>
@@ -444,21 +411,22 @@ export default function AlertConfig() {
             </CardContent>
             <CardFooter>
               <Button
-                onClick={handleCreateAlert}
+                onClick={handleCreateDecision}
                 disabled={creating}
                 className="w-full"
               >
-                {creating ? "Creating..." : "Create Alert Configuration"}
+                {creating ? "Creating..." : "Create Decision Configuration"}
               </Button>
             </CardFooter>
           </Card>
         </CollapsibleContent>
       </Collapsible>
+
       {/* Existing Configurations */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <Settings className="w-5 h-5" />
-          Your Configurations ({alertConfigs.length})
+          Your Configurations ({decisionConfigs.length})
         </h3>
 
         {loading ? (
@@ -469,25 +437,23 @@ export default function AlertConfig() {
           </div>
         ) : error ? (
           <p className="text-red-500">Error: {error}</p>
-        ) : alertConfigs.length === 0 ? (
+        ) : decisionConfigs.length === 0 ? (
           <Card>
             <CardContent className="p-8 text-center">
-              <Bell className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <Target className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground mb-2">
-                No alert configurations found
+                No decision configurations found
               </p>
               <p className="text-sm text-muted-foreground">
-                Create your first alert configuration to get started
+                Create your first decision configuration to start automated
+                trading
               </p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {alertConfigs.map((config) => (
-              <Card
-                key={config._id}
-                className={`${!config.isActive ? "opacity-75" : ""}`}
-              >
+            {decisionConfigs.map((config) => (
+              <Card key={config._id}>
                 <CardHeader className="pb-3">
                   {editingConfigId === config._id ? (
                     <Input
@@ -497,16 +463,15 @@ export default function AlertConfig() {
                     />
                   ) : (
                     <CardTitle className="flex items-center gap-2 text-lg">
-                      {getAlertTypeIcon(config.alertType)}
+                      <Target className="w-4 h-4" />
                       {config.name}
                     </CardTitle>
                   )}
-                  <CardDescription className="flex items-center gap-2">
+                  <CardDescription>
                     <Badge variant="outline">
-                      {getAlertTypeLabel(config.alertType)}
-                    </Badge>
-                    <Badge variant={config.isActive ? "default" : "secondary"}>
-                      {config.isActive ? "Active" : "Inactive"}
+                      {config.firstCondition === "macd"
+                        ? "MACD-based"
+                        : "Trend-based"}
                     </Badge>
                   </CardDescription>
                 </CardHeader>
@@ -514,21 +479,67 @@ export default function AlertConfig() {
                 <CardContent className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-muted-foreground">
-                      Threshold:
+                      First Condition:
+                    </span>
+                    {editingConfigId === config._id ? (
+                      <Select
+                        value={editFirstCondition}
+                        onValueChange={setEditFirstCondition}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="macd">MACD</SelectItem>
+                          <SelectItem value="trend_continuation">
+                            Trend
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge variant="outline">{config.firstCondition}</Badge>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      First Threshold:
                     </span>
                     {editingConfigId === config._id ? (
                       <Input
                         type="number"
                         min={1}
-                        max={10}
-                        value={editThreshold}
+                        value={editFirstConditionThreshold}
                         onChange={(e) =>
-                          setEditThreshold(Number(e.target.value))
+                          setEditFirstConditionThreshold(Number(e.target.value))
                         }
                         className="w-20"
                       />
                     ) : (
-                      <Badge variant="outline">{config.threshold}</Badge>
+                      <Badge variant="outline">
+                        {config.firstConditionThreshold}
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">
+                      Price Threshold:
+                    </span>
+                    {editingConfigId === config._id ? (
+                      <Input
+                        type="number"
+                        min={1}
+                        value={editPriceConditionThreshold}
+                        onChange={(e) =>
+                          setEditPriceConditionThreshold(Number(e.target.value))
+                        }
+                        className="w-20"
+                      />
+                    ) : (
+                      <Badge variant="outline">
+                        {config.priceConditionThreshold}
+                      </Badge>
                     )}
                   </div>
 
@@ -624,7 +635,7 @@ export default function AlertConfig() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleUpdateAlert(config._id)}
+                          onClick={() => handleUpdateDecision(config._id)}
                           disabled={updating}
                         >
                           {updating ? (
@@ -654,38 +665,13 @@ export default function AlertConfig() {
                         <Button
                           variant="destructive"
                           size="sm"
-                          onClick={() => handleDeleteAlert(config._id)}
+                          onClick={() => handleDeleteDecision(config._id)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </>
                     )}
                   </div>
-
-                  {editingConfigId !== config._id && (
-                    <Button
-                      variant={config.isActive ? "destructive" : "default"}
-                      size="sm"
-                      onClick={() =>
-                        handleToggleActiveStatus(config._id, config.isActive)
-                      }
-                      disabled={togglingStatus[config._id]}
-                    >
-                      {togglingStatus[config._id] ? (
-                        "Updating..."
-                      ) : config.isActive ? (
-                        <>
-                          <PowerOff className="h-4 w-4 mr-1" />
-                          Deactivate
-                        </>
-                      ) : (
-                        <>
-                          <Power className="h-4 w-4 mr-1" />
-                          Activate
-                        </>
-                      )}
-                    </Button>
-                  )}
                 </CardFooter>
               </Card>
             ))}

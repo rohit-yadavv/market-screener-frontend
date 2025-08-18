@@ -5,7 +5,7 @@ import AlertConfig from "../components/AlertConfig";
 import PastEvents from "../components/PastEvents";
 import Settings from "../components/Settings/Page";
 import RealtimeEvents from "@/components/RealTimeEvents";
-import TradeHistory from "@/components/TradeHistory";
+import DecisionPage from "./DecisionPage";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -14,6 +14,7 @@ import {
   Radio,
   Settings as SettingsIcon,
   ArrowLeftRight,
+  ClipboardList,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -51,6 +52,14 @@ export default function Dashboard() {
 
             <TabsTrigger
               className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
+              value="decision"
+            >
+              <ClipboardList className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
+              <span className="hidden sm:inline">Decision Config</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
               value="realtime"
             >
               <Radio className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
@@ -67,14 +76,6 @@ export default function Dashboard() {
 
             <TabsTrigger
               className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
-              value="trades"
-            >
-              <ArrowLeftRight className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
-              <span className="hidden sm:inline">Trades</span>
-            </TabsTrigger>
-
-            <TabsTrigger
-              className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
               value="settings"
             >
               <SettingsIcon className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
@@ -87,16 +88,16 @@ export default function Dashboard() {
             <AlertConfig />
           </TabsContent>
 
+          <TabsContent value="decision">
+            <DecisionPage />
+          </TabsContent>
+
           <TabsContent value="realtime">
             <RealtimeEvents />
           </TabsContent>
 
           <TabsContent value="events">
             <PastEvents />
-          </TabsContent>
-
-          <TabsContent value="trades">
-            <TradeHistory />
           </TabsContent>
 
           <TabsContent value="settings">
