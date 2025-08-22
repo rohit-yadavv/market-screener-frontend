@@ -67,7 +67,7 @@ const RealtimeEvents = () => {
       case "macd_cycle":
         return "MACD Cycle";
       case "price_action":
-        return "Price Action";
+        return "Price Action (MACD)";
       case "trend_continuation":
         return "Trend Continuation";
       case "high_low":
@@ -100,7 +100,7 @@ const RealtimeEvents = () => {
         return {
           cycle: event.cycle,
           count: event.count,
-          description: `${event.cycle} price action with ${event.count} instances`,
+          description: `${event.cycle} price action with ${event.count} instances (after MACD threshold met)`,
           color: event.cycle === "positive" ? "text-green-600" : "text-red-600",
           datetime: event.datetime,
         };
@@ -229,7 +229,7 @@ const RealtimeEvents = () => {
               size="sm"
               onClick={() => setFilter("price_action")}
             >
-              Price Action
+              Price Action (MACD)
             </Button>
             <Button
               variant={filter === "trend_continuation" ? "default" : "outline"}

@@ -32,6 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Calendar,
   Clock,
@@ -41,17 +42,16 @@ import {
   BarChart3,
   LineChart,
   AlertTriangle,
-  ArrowLeftRight,
   Filter,
   RefreshCw,
   Download,
 } from "lucide-react";
 import { toast } from "sonner";
 
-export default function PastEvents() {
-  const [activeTab, setActiveTab] = useState("alerts");
+export default function PastAlerts() {
+  const [activeTab, setActiveTab] = useState("macd");
   const [loading, setLoading] = useState(true);
-  const [events, setEvents] = useState([]);
+  const [alerts, setAlerts] = useState([]);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -61,56 +61,43 @@ export default function PastEvents() {
 
   const [filters, setFilters] = useState({
     symbol: "",
-    alertType: "all",
-    startDate: "",
-    endDate: "",
+    dateRange: null,
+  });
+
+  const [appliedFilters, setAppliedFilters] = useState({
+    symbol: "",
+    startDate: null,
+    endDate: null,
   });
 
   useEffect(() => {
-    fetchEvents();
-  }, [activeTab, filters, pagination.page]);
+    fetchAlerts();
+  }, [activeTab, appliedFilters, pagination.page]);
 
-  const fetchEvents = async () => {
+  const fetchAlerts = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
         page: pagination.page.toString(),
         limit: pagination.limit.toString(),
+        alertType: activeTab,
       });
 
-      if (filters.symbol) params.append("symbol", filters.symbol);
-      if (filters.alertType && filters.alertType !== "all")
-        params.append("alertType", filters.alertType);
-      if (filters.startDate) params.append("startDate", filters.startDate);
-      if (filters.endDate) params.append("endDate", filters.endDate);
+      if (appliedFilters.symbol) params.append("symbol", appliedFilters.symbol);
+      if (appliedFilters.startDate)
+        params.append(
+          "startDate",
+          format(appliedFilters.startDate, "yyyy-MM-dd")
+        );
+      if (appliedFilters.endDate)
+        params.append("endDate", format(appliedFilters.endDate, "yyyy-MM-dd"));
 
-      let endpoint = "";
-      switch (activeTab) {
-        case "alerts":
-          endpoint = "alerts";
-          break;
-        case "trades":
-          endpoint = "trades";
-          break;
-        case "decision-trades":
-          endpoint = "decision-trades";
-          break;
-        case "decision-events":
-          endpoint = "decision-events";
-          break;
-        default:
-          endpoint = "alerts";
-      }
-
-      const response = await axios.get(
-        `${BASE_URL}/history/${endpoint}?${params}`,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axios.get(`${BASE_URL}/history/alerts?${params}`, {
+        withCredentials: true,
+      });
 
       if (response.data.success) {
-        setEvents(response.data.data.events);
+        setAlerts(response.data.data.events);
         setPagination((prev) => ({
           ...prev,
           total: response.data.data.pagination.total,
@@ -118,14 +105,14 @@ export default function PastEvents() {
         }));
       }
     } catch (error) {
-      toast.error("Failed to fetch history data");
-      console.error("Error fetching events:", error);
+      toast.error("Failed to fetch alert history");
+      console.error("Error fetching alerts:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getEventIcon = (type) => {
+  const getAlertIcon = (type) => {
     switch (type) {
       case "macd":
         return <BarChart3 className="w-4 h-4" />;
@@ -135,38 +122,30 @@ export default function PastEvents() {
         return <Repeat className="w-4 h-4" />;
       case "high_low":
         return <TrendingUp className="w-4 h-4" />;
-      case "decision_trade":
-        return <ArrowLeftRight className="w-4 h-4" />;
-      case "decision_event":
-        return <AlertTriangle className="w-4 h-4" />;
       default:
-        return <Clock className="w-4 h-4" />;
+        return <AlertTriangle className="w-4 h-4" />;
     }
   };
 
-  const getEventTypeLabel = (type) => {
+  const getAlertTypeLabel = (type) => {
     switch (type) {
       case "macd":
-        return "MACD Cycle";
+        return "MACD Alert";
       case "price_action":
-        return "Price Action (MACD)";
+        return "Price Candle Alert";
       case "trend_continuation":
-        return "Trend Continuation";
+        return "Trend Continuous Alert";
       case "high_low":
-        return "High/Low";
-      case "decision_trade":
-        return "Decision Trade";
-      case "decision_event":
-        return "Decision Event";
+        return "High Low Alert";
       default:
         return type;
     }
   };
 
-  const getEventDetails = (event) => {
-    const details = event.details;
+  const getAlertDetails = (alert) => {
+    const details = alert.details;
 
-    switch (event.type) {
+    switch (alert.type) {
       case "macd":
         return {
           cycle: details.cycle,
@@ -190,29 +169,23 @@ export default function PastEvents() {
           value: details.value,
           description: `New ${details.valueType} at ${details.value}`,
         };
-      case "decision_trade":
-        return {
-          side: details.side,
-          quantity: details.quantity,
-          triggerPrice: details.triggerPrice,
-          description: `${details.side} ${details.quantity} shares at $${details.triggerPrice}`,
-        };
-      case "decision_event":
-        return {
-          firstCondition: details.firstCondition,
-          firstConditionCount: details.firstConditionCount,
-          priceConditionCount: details.priceConditionCount,
-          description: `${details.firstCondition} condition met with counts ${details.firstConditionCount}/${details.priceConditionCount}`,
-        };
       default:
         return {
-          description: "Event details",
+          description: "Alert details",
         };
     }
   };
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const applyFilters = () => {
+    setAppliedFilters({
+      symbol: filters.symbol,
+      startDate: filters.dateRange?.from || null,
+      endDate: filters.dateRange?.to || null,
+    });
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
@@ -223,24 +196,26 @@ export default function PastEvents() {
   const clearFilters = () => {
     setFilters({
       symbol: "",
-      alertType: "all", // Changed from "" to "all"
-      startDate: "",
-      endDate: "",
+      dateRange: null,
+    });
+    setAppliedFilters({
+      symbol: "",
+      startDate: null,
+      endDate: null,
     });
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   const exportData = () => {
-    // Simple CSV export
     const headers = ["Date", "Type", "Symbol", "Details"];
     const csvContent = [
       headers.join(","),
-      ...events.map((event) => {
-        const details = getEventDetails(event);
+      ...alerts.map((alert) => {
+        const details = getAlertDetails(alert);
         return [
-          format(new Date(event.datetime), "yyyy-MM-dd HH:mm:ss"),
-          getEventTypeLabel(event.type),
-          event.symbol,
+          format(new Date(alert.datetime), "yyyy-MM-dd HH:mm:ss"),
+          getAlertTypeLabel(alert.type),
+          alert.symbol,
           details.description,
         ].join(",");
       }),
@@ -250,7 +225,10 @@ export default function PastEvents() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `history-${activeTab}-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.download = `past-alerts-${activeTab}-${format(
+      new Date(),
+      "yyyy-MM-dd"
+    )}.csv`;
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -258,9 +236,9 @@ export default function PastEvents() {
   return (
     <div className="w-full space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">History & Analytics</h2>
+        <h2 className="text-2xl font-bold">Past Alerts</h2>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetchEvents}>
+          <Button variant="outline" size="sm" onClick={fetchAlerts}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
           </Button>
@@ -280,7 +258,7 @@ export default function PastEvents() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="symbol">Symbol</Label>
               <Input
@@ -293,95 +271,70 @@ export default function PastEvents() {
               />
             </div>
             <div>
-              <Label htmlFor="alertType">Event Type</Label>
-              <Select
-                value={filters.alertType}
-                onValueChange={(value) =>
-                  handleFilterChange("alertType", value)
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="All types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All types</SelectItem>
-                  <SelectItem value="macd">MACD</SelectItem>
-                  <SelectItem value="price_action">
-                    Price Action (MACD)
-                  </SelectItem>
-                  <SelectItem value="trend_continuation">
-                    Trend Continuation
-                  </SelectItem>
-                  <SelectItem value="high_low">High/Low</SelectItem>
-                  <SelectItem value="decision_trade">Decision Trade</SelectItem>
-                  <SelectItem value="decision_event">Decision Event</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label htmlFor="startDate">Start Date</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={filters.startDate}
-                onChange={(e) =>
-                  handleFilterChange("startDate", e.target.value)
-                }
-              />
-            </div>
-            <div>
-              <Label htmlFor="endDate">End Date</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={filters.endDate}
-                onChange={(e) => handleFilterChange("endDate", e.target.value)}
+              <Label>Date Range</Label>
+              <DatePicker
+                mode="range"
+                value={filters.dateRange}
+                onChange={(range) => handleFilterChange("dateRange", range)}
+                className="w-full"
               />
             </div>
           </div>
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end gap-2 mt-4">
             <Button variant="outline" onClick={clearFilters}>
               Clear Filters
             </Button>
+            <Button onClick={applyFilters}>Apply Filters</Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* Tabs */}
+      {/* Alert Type Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="alerts">Alerts</TabsTrigger>
-          <TabsTrigger value="decision-trades">Decision Trades</TabsTrigger>
-          <TabsTrigger value="decision-events">Decision Events</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="macd">MACD Alert</TabsTrigger>
+          <TabsTrigger value="price_action">Price Candle</TabsTrigger>
+          <TabsTrigger value="trend_continuation">Trend Continuous</TabsTrigger>
+          <TabsTrigger value="high_low">High Low</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="alerts" className="space-y-4">
-          <HistoryTable
-            events={events}
+        <TabsContent value="macd" className="space-y-4">
+          <AlertTable
+            alerts={alerts}
             loading={loading}
-            getEventIcon={getEventIcon}
-            getEventTypeLabel={getEventTypeLabel}
-            getEventDetails={getEventDetails}
+            getAlertIcon={getAlertIcon}
+            getAlertTypeLabel={getAlertTypeLabel}
+            getAlertDetails={getAlertDetails}
           />
         </TabsContent>
 
-        <TabsContent value="decision-trades" className="space-y-4">
-          <HistoryTable
-            events={events}
+        <TabsContent value="price_action" className="space-y-4">
+          <AlertTable
+            alerts={alerts}
             loading={loading}
-            getEventIcon={getEventIcon}
-            getEventTypeLabel={getEventTypeLabel}
-            getEventDetails={getEventDetails}
+            getAlertIcon={getAlertIcon}
+            getAlertTypeLabel={getAlertTypeLabel}
+            getAlertDetails={getAlertDetails}
           />
         </TabsContent>
 
-        <TabsContent value="decision-events" className="space-y-4">
-          <HistoryTable
-            events={events}
+        <TabsContent value="trend_continuation" className="space-y-4">
+          <AlertTable
+            alerts={alerts}
             loading={loading}
-            getEventIcon={getEventIcon}
-            getEventTypeLabel={getEventTypeLabel}
-            getEventDetails={getEventDetails}
+            getAlertIcon={getAlertIcon}
+            getAlertTypeLabel={getAlertTypeLabel}
+            getAlertDetails={getAlertDetails}
+          />
+        </TabsContent>
+
+        <TabsContent value="high_low" className="space-y-4">
+          <AlertTable
+            alerts={alerts}
+            loading={loading}
+            getAlertIcon={getAlertIcon}
+            getAlertTypeLabel={getAlertTypeLabel}
+            getAlertDetails={getAlertDetails}
           />
         </TabsContent>
       </Tabs>
@@ -418,12 +371,12 @@ export default function PastEvents() {
   );
 }
 
-function HistoryTable({
-  events,
+function AlertTable({
+  alerts,
   loading,
-  getEventIcon,
-  getEventTypeLabel,
-  getEventDetails,
+  getAlertIcon,
+  getAlertTypeLabel,
+  getAlertDetails,
 }) {
   if (loading) {
     return (
@@ -445,11 +398,11 @@ function HistoryTable({
     );
   }
 
-  if (events.length === 0) {
+  if (alerts.length === 0) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">No events found</p>
+          <p className="text-muted-foreground">No alerts found</p>
         </CardContent>
       </Card>
     );
@@ -467,29 +420,29 @@ function HistoryTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {events.map((event) => {
-            const details = getEventDetails(event);
+          {alerts.map((alert) => {
+            const details = getAlertDetails(alert);
             return (
-              <TableRow key={event.id}>
+              <TableRow key={alert.id}>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    {getEventIcon(event.type)}
+                    {getAlertIcon(alert.type)}
                     <Badge variant="outline">
-                      {getEventTypeLabel(event.type)}
+                      {getAlertTypeLabel(alert.type)}
                     </Badge>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="secondary">{event.symbol}</Badge>
+                  <Badge variant="secondary">{alert.symbol}</Badge>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Calendar className="w-3 h-3" />
-                    {format(new Date(event.datetime), "MMM dd, yyyy")}
+                    {format(new Date(alert.datetime), "MMM dd, yyyy")}
                   </div>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
-                    {format(new Date(event.datetime), "HH:mm:ss")}
+                    {format(new Date(alert.datetime), "HH:mm:ss")}
                   </div>
                 </TableCell>
                 <TableCell>

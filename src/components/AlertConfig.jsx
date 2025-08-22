@@ -57,6 +57,7 @@ export default function AlertConfig() {
   const [newName, setNewName] = useState("");
   const [newAlertType, setNewAlertType] = useState("macd");
   const [newThreshold, setNewThreshold] = useState(1);
+  const [newMacdThreshold, setNewMacdThreshold] = useState(1);
   const [newSelectedSymbols, setNewSelectedSymbols] = useState([]);
   const [newSymbolSearch, setNewSymbolSearch] = useState("");
   const [creating, setCreating] = useState(false);
@@ -66,6 +67,7 @@ export default function AlertConfig() {
   const [editName, setEditName] = useState("");
   const [editAlertType, setEditAlertType] = useState("");
   const [editThreshold, setEditThreshold] = useState(1);
+  const [editMacdThreshold, setEditMacdThreshold] = useState(1);
   const [editSelectedSymbols, setEditSelectedSymbols] = useState([]);
   const [editSymbolSearch, setEditSymbolSearch] = useState("");
   const [updating, setUpdating] = useState(false);
@@ -141,7 +143,7 @@ export default function AlertConfig() {
       case "trend_continuation":
         return "Trend Continuation";
       case "price_action":
-        return "Price Action";
+        return "Price Action (MACD)";
       case "high_low":
         return "High/Low";
       default:
@@ -160,16 +162,29 @@ export default function AlertConfig() {
       return;
     }
 
+    // Validate MACD threshold for price action alerts
+    if (newAlertType === "price_action" && (!newMacdThreshold || newMacdThreshold < 1)) {
+      toast.error("MACD threshold is required and must be at least 1 for price action alerts.");
+      return;
+    }
+
     setCreating(true);
     try {
+      const requestData = {
+        name: newName,
+        alertType: newAlertType,
+        threshold: newThreshold,
+        symbols: newSelectedSymbols,
+      };
+
+      // Add MACD threshold for price action alerts
+      if (newAlertType === "price_action") {
+        requestData.macdThreshold = newMacdThreshold;
+      }
+
       const response = await axios.post(
         `${BASE_URL}/alerts`,
-        {
-          name: newName,
-          alertType: newAlertType,
-          threshold: newThreshold,
-          symbols: newSelectedSymbols,
-        },
+        requestData,
         { withCredentials: true }
       );
 
@@ -178,6 +193,7 @@ export default function AlertConfig() {
         setNewName("");
         setNewAlertType("macd");
         setNewThreshold(1);
+        setNewMacdThreshold(1);
         setNewSelectedSymbols([]);
         setNewSymbolSearch("");
         setIsCreateOpen(false);
@@ -198,6 +214,7 @@ export default function AlertConfig() {
     setEditName(config.name);
     setEditAlertType(config.alertType);
     setEditThreshold(config.threshold);
+    setEditMacdThreshold(config.macdThreshold || 1);
     setEditSelectedSymbols(config.symbols);
     setEditSymbolSearch("");
   };
@@ -207,6 +224,7 @@ export default function AlertConfig() {
     setEditName("");
     setEditAlertType("");
     setEditThreshold(1);
+    setEditMacdThreshold(1);
     setEditSelectedSymbols([]);
     setEditSymbolSearch("");
   };
@@ -222,16 +240,29 @@ export default function AlertConfig() {
       return;
     }
 
+    // Validate MACD threshold for price action alerts
+    if (editAlertType === "price_action" && (!editMacdThreshold || editMacdThreshold < 1)) {
+      toast.error("MACD threshold is required and must be at least 1 for price action alerts.");
+      return;
+    }
+
     setUpdating(true);
     try {
+      const requestData = {
+        name: editName,
+        alertType: editAlertType,
+        threshold: editThreshold,
+        symbols: editSelectedSymbols,
+      };
+
+      // Add MACD threshold for price action alerts
+      if (editAlertType === "price_action") {
+        requestData.macdThreshold = editMacdThreshold;
+      }
+
       const response = await axios.put(
         `${BASE_URL}/alerts/${id}`,
-        {
-          name: editName,
-          alertType: editAlertType,
-          threshold: editThreshold,
-          symbols: editSelectedSymbols,
-        },
+        requestData,
         { withCredentials: true }
       );
 
@@ -367,24 +398,41 @@ export default function AlertConfig() {
                       <SelectItem value="trend_continuation">
                         Trend Continuation
                       </SelectItem>
-                      <SelectItem value="price_action">Price Action</SelectItem>
+                      <SelectItem value="price_action">Price Action (with MACD threshold)</SelectItem>
                       <SelectItem value="high_low">High/Low</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="threshold">Threshold</Label>
-                <Input
-                  id="threshold"
-                  type="number"
-                  min={1}
-                  max={10}
-                  value={newThreshold}
-                  onChange={(e) => setNewThreshold(Number(e.target.value))}
-                  placeholder="Number of cycles/instances needed"
-                />
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <Label htmlFor="threshold">Threshold</Label>
+                  <Input
+                    id="threshold"
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={newThreshold}
+                    onChange={(e) => setNewThreshold(Number(e.target.value))}
+                    placeholder="Number of cycles/instances needed"
+                  />
+                </div>
+
+                {newAlertType === "price_action" && (
+                  <div>
+                    <Label htmlFor="macd-threshold">MACD Threshold</Label>
+                    <Input
+                      id="macd-threshold"
+                      type="number"
+                      min={1}
+                      max={10}
+                      value={newMacdThreshold}
+                      onChange={(e) => setNewMacdThreshold(Number(e.target.value))}
+                      placeholder="MACD cycles needed before price alert"
+                    />
+                  </div>
+                )}
               </div>
 
               <div>
@@ -397,7 +445,7 @@ export default function AlertConfig() {
                   className="mb-2"
                 />
                 <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto border p-2 rounded-md">
-                  {filteredNewSymbols.slice(0, 20).map((symbol) => {
+                  {filteredNewSymbols.map((symbol) => {
                     const isActive = newSelectedSymbols.includes(symbol);
                     return (
                       <Button
@@ -484,10 +532,7 @@ export default function AlertConfig() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {alertConfigs.map((config) => (
-              <Card
-                key={config._id}
-                className={`${!config.isActive ? "opacity-75" : ""}`}
-              >
+              <Card key={config._id}>
                 <CardHeader className="pb-3">
                   {editingConfigId === config._id ? (
                     <Input
@@ -532,6 +577,28 @@ export default function AlertConfig() {
                     )}
                   </div>
 
+                  {config.alertType === "price_action" && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">
+                        MACD Threshold:
+                      </span>
+                      {editingConfigId === config._id ? (
+                        <Input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={editMacdThreshold}
+                          onChange={(e) =>
+                            setEditMacdThreshold(Number(e.target.value))
+                          }
+                          className="w-20"
+                        />
+                      ) : (
+                        <Badge variant="outline">{config.macdThreshold || 1}</Badge>
+                      )}
+                    </div>
+                  )}
+
                   <div>
                     <span className="text-sm text-muted-foreground">
                       Symbols:
@@ -548,7 +615,7 @@ export default function AlertConfig() {
                             className="w-full mb-2"
                           />
                           <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
-                            {filteredEditSymbols.slice(0, 10).map((symbol) => {
+                            {filteredEditSymbols.map((symbol) => {
                               const isActive =
                                 editSelectedSymbols.includes(symbol);
                               return (
@@ -597,7 +664,7 @@ export default function AlertConfig() {
                           )}
                         </>
                       ) : (
-                        config.symbols.slice(0, 3).map((symbol) => (
+                        config.symbols.map((symbol) => (
                           <Badge
                             key={symbol}
                             variant="secondary"

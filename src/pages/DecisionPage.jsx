@@ -364,7 +364,7 @@ export default function DecisionPage() {
                   className="mb-2"
                 />
                 <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto border p-2 rounded-md">
-                  {filteredNewSymbols.slice(0, 20).map((symbol) => {
+                  {filteredNewSymbols.map((symbol) => {
                     const isActive = newSelectedSymbols.includes(symbol);
                     return (
                       <Button
@@ -559,7 +559,7 @@ export default function DecisionPage() {
                             className="w-full mb-2"
                           />
                           <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
-                            {filteredEditSymbols.slice(0, 10).map((symbol) => {
+                            {filteredEditSymbols.map((symbol) => {
                               const isActive =
                                 editSelectedSymbols.includes(symbol);
                               return (
@@ -608,7 +608,7 @@ export default function DecisionPage() {
                           )}
                         </>
                       ) : (
-                        config.symbols.slice(0, 3).map((symbol) => (
+                        config.symbols.map((symbol) => (
                           <Badge
                             key={symbol}
                             variant="secondary"

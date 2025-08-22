@@ -2,10 +2,12 @@ import { useEffect } from "react";
 import { subscribeToPushNotifications } from "../utils/push.util";
 
 import AlertConfig from "../components/AlertConfig";
-import PastEvents from "../components/PastEvents";
+import PastAlerts from "../components/PastAlerts";
+import PastDecision from "../components/PastDecision";
 import Settings from "../components/Settings/Page";
 import RealtimeEvents from "@/components/RealTimeEvents";
 import DecisionPage from "./DecisionPage";
+import TradingPage from "./TradingPage";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -15,6 +17,7 @@ import {
   Settings as SettingsIcon,
   ArrowLeftRight,
   ClipboardList,
+  TrendingUp,
 } from "lucide-react";
 
 export default function Dashboard() {
@@ -41,7 +44,7 @@ export default function Dashboard() {
 
       <Tabs defaultValue="stocks" className="w-full">
         <div className="border-b border-border">
-          <TabsList className="my-6 h-12 px-2 w-full flex gap-2 justify-between">
+          <TabsList className="my-6 h-12 px-2 w-full flex gap-2 justify-between overflow-x-auto">
             <TabsTrigger
               className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
               value="stocks"
@@ -68,10 +71,18 @@ export default function Dashboard() {
 
             <TabsTrigger
               className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
-              value="events"
+              value="past-alerts"
             >
               <History className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
-              <span className="hidden sm:inline">Past Events</span>
+              <span className="hidden sm:inline">Past Alerts</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              className="cursor-pointer text-xs md:text-sm lg:text-base flex items-center"
+              value="past-decision"
+            >
+              <TrendingUp className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
+              <span className="hidden sm:inline">Past Decision</span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -96,8 +107,12 @@ export default function Dashboard() {
             <RealtimeEvents />
           </TabsContent>
 
-          <TabsContent value="events">
-            <PastEvents />
+          <TabsContent value="past-alerts">
+            <PastAlerts />
+          </TabsContent>
+
+          <TabsContent value="past-decision">
+            <PastDecision />
           </TabsContent>
 
           <TabsContent value="settings">
