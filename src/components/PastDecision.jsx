@@ -98,6 +98,18 @@ export default function PastDecision() {
           response.data.data.events || response.data.data.trades || [];
         setDecisions(decisionData);
 
+        // Debug: Log decision data for troubleshooting
+        if (decisionData.length > 0) {
+          console.log(`Loaded ${decisionData.length} ${activeTab} decisions`);
+          const firstDecision = decisionData[0];
+          console.log(`First ${activeTab} decision:`, {
+            type: firstDecision.type,
+            datetime: firstDecision.datetime,
+            createdAt: firstDecision.createdAt,
+            id: firstDecision.id
+          });
+        }
+
         setPagination((prev) => ({
           ...prev,
           total: response.data.data.pagination.total,
@@ -184,22 +196,45 @@ export default function PastDecision() {
    * @returns {Date} The decision date
    */
   const getDecisionDate = (decision) => {
-    if (decision.type === "decision_trade" && decision.createdAt) {
-      return new Date(decision.createdAt);
-    }
+    try {
+      // For decision trades, only use createdAt (no datetime field)
+      if (decision.type === "decision_trade") {
+        if (decision.createdAt) {
+          const date = new Date(decision.createdAt);
+          if (!isNaN(date.getTime())) {
+            return date;
+          }
+          console.warn('Invalid createdAt date for decision trade:', decision.createdAt);
+        }
+        console.warn('No valid createdAt found for decision trade. Using current time as fallback.');
+        return new Date();
+      }
 
-    if (decision.datetime) {
-      return new Date(decision.datetime);
-    }
+      // For other types, prefer datetime, fallback to createdAt
+      if (decision.datetime) {
+        const date = new Date(decision.datetime);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
+        console.warn('Invalid datetime for decision:', decision.datetime);
+      }
 
-    if (decision.createdAt) {
-      return new Date(decision.createdAt);
-    }
+      if (decision.createdAt) {
+        const date = new Date(decision.createdAt);
+        if (!isNaN(date.getTime())) {
+          return date;
+        }
+        console.warn('Invalid createdAt for decision:', decision.createdAt);
+      }
 
-    console.warn(
-      "No date field found for decision. Using current time as fallback."
-    );
-    return new Date();
+      console.warn(
+        "No valid date field found for decision. Using current time as fallback."
+      );
+      return new Date();
+    } catch (error) {
+      console.error('Error parsing decision date:', error, decision);
+      return new Date();
+    }
   };
 
   /**
