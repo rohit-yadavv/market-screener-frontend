@@ -106,7 +106,7 @@ export default function PastAlerts() {
       }
     } catch (error) {
       toast.error("Failed to fetch alert history");
-      console.error("Error fetching alerts:", error);
+      console.warn("Error fetching alerts:", error);
     } finally {
       setLoading(false);
     }

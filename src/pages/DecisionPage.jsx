@@ -32,11 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 
 export default function DecisionPage() {
   const [decisionConfigs, setDecisionConfigs] = useState([]);
@@ -45,7 +41,6 @@ export default function DecisionPage() {
   const [allSymbols, setAllSymbols] = useState([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  // Form states for creating new decision config
   const [newName, setNewName] = useState("");
   const [newFirstCondition, setNewFirstCondition] = useState("macd");
   const [newFirstConditionThreshold, setNewFirstConditionThreshold] =
@@ -56,7 +51,6 @@ export default function DecisionPage() {
   const [newSymbolSearch, setNewSymbolSearch] = useState("");
   const [creating, setCreating] = useState(false);
 
-  // State for editing
   const [editingConfigId, setEditingConfigId] = useState(null);
   const [editName, setEditName] = useState("");
   const [editFirstCondition, setEditFirstCondition] = useState("");

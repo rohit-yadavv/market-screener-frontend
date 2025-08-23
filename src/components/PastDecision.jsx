@@ -3,26 +3,12 @@ import axios from "axios";
 import { format } from "date-fns";
 import { BASE_URL } from "../utils/api";
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Table,
@@ -36,14 +22,11 @@ import { DatePicker } from "@/components/ui/date-picker";
 import {
   Calendar,
   Clock,
-  TrendingUp,
-  TrendingDown,
   ArrowLeftRight,
   AlertTriangle,
   Filter,
   RefreshCw,
   Download,
-  DollarSign,
   Target,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -111,9 +94,10 @@ export default function PastDecision() {
       );
 
       if (response.data.success) {
-        setDecisions(
-          response.data.data.events || response.data.data.trades || []
-        );
+        const decisionData =
+          response.data.data.events || response.data.data.trades || [];
+        setDecisions(decisionData);
+
         setPagination((prev) => ({
           ...prev,
           total: response.data.data.pagination.total,
@@ -128,6 +112,11 @@ export default function PastDecision() {
     }
   };
 
+  /**
+   * Get the appropriate icon for a decision type
+   * @param {string} type - The decision type
+   * @returns {JSX.Element} The icon component
+   */
   const getDecisionIcon = (type) => {
     switch (type) {
       case "decision_event":
@@ -139,6 +128,11 @@ export default function PastDecision() {
     }
   };
 
+  /**
+   * Get the display label for a decision type
+   * @param {string} type - The decision type
+   * @returns {string} The display label
+   */
   const getDecisionTypeLabel = (type) => {
     switch (type) {
       case "decision_event":
@@ -150,6 +144,11 @@ export default function PastDecision() {
     }
   };
 
+  /**
+   * Extract and format decision details based on type
+   * @param {Object} decision - The decision object
+   * @returns {Object} Formatted decision details
+   */
   const getDecisionDetails = (decision) => {
     const details = decision.details;
 
@@ -168,7 +167,7 @@ export default function PastDecision() {
           triggerPrice: details.triggerPrice,
           status: details.status,
           orderId: details.orderId,
-          description: `${details.side.toUpperCase()} ${
+          description: `${details.side?.toUpperCase()} ${
             details.quantity
           } shares at $${details.triggerPrice?.toFixed(2) || "N/A"}`,
         };
@@ -179,10 +178,42 @@ export default function PastDecision() {
     }
   };
 
+  /**
+   * Get the correct date from a decision object
+   * @param {Object} decision - The decision object
+   * @returns {Date} The decision date
+   */
+  const getDecisionDate = (decision) => {
+    if (decision.type === "decision_trade" && decision.createdAt) {
+      return new Date(decision.createdAt);
+    }
+
+    if (decision.datetime) {
+      return new Date(decision.datetime);
+    }
+
+    if (decision.createdAt) {
+      return new Date(decision.createdAt);
+    }
+
+    console.warn(
+      "No date field found for decision. Using current time as fallback."
+    );
+    return new Date();
+  };
+
+  /**
+   * Handle filter changes
+   * @param {string} key - Filter key
+   * @param {any} value - Filter value
+   */
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
+  /**
+   * Apply current filters and reset pagination
+   */
   const applyFilters = () => {
     setAppliedFilters({
       symbol: filters.symbol,
@@ -192,6 +223,10 @@ export default function PastDecision() {
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
+  /**
+   * Handle page change
+   * @param {number} newPage - New page number
+   */
   const handlePageChange = (newPage) => {
     setPagination((prev) => ({ ...prev, page: newPage }));
   };
@@ -210,7 +245,7 @@ export default function PastDecision() {
   };
 
   const exportData = () => {
-    let headers = ["Date", "Type", "Symbol"];
+    let headers = ["Date", "Time", "Type", "Symbol"];
 
     if (activeTab === "events") {
       headers = [
@@ -230,40 +265,49 @@ export default function PastDecision() {
       headers.join(","),
       ...decisions.map((decision) => {
         const details = getDecisionDetails(decision);
+        const decisionDate = getDecisionDate(decision);
+
+        const dateStr = format(decisionDate, "yyyy-MM-dd");
+        const timeStr = format(decisionDate, "HH:mm:ss");
 
         if (activeTab === "events") {
           return [
-            format(new Date(decision.datetime), "yyyy-MM-dd HH:mm:ss"),
-            getDecisionTypeLabel(decision.type),
-            decision.symbol,
-            details.firstCondition?.replace("_", " ") || "N/A",
-            details.firstConditionCount || "N/A",
-            details.priceConditionCount || "N/A",
-            details.description,
+            `"${dateStr}"`,
+            `"${timeStr}"`,
+            `"${getDecisionTypeLabel(decision.type)}"`,
+            `"${decision.symbol}"`,
+            `"${details.firstCondition?.replace("_", " ") || "N/A"}"`,
+            `"${details.firstConditionCount || "N/A"}"`,
+            `"${details.priceConditionCount || "N/A"}"`,
+            `"${details.description}"`,
           ].join(",");
         } else if (activeTab === "trading") {
           return [
-            format(new Date(decision.datetime), "yyyy-MM-dd HH:mm:ss"),
-            getDecisionTypeLabel(decision.type),
-            decision.symbol,
-            details.side?.toUpperCase() || "N/A",
-            details.quantity || "N/A",
-            details.triggerPrice?.toFixed(2) || "N/A",
-            details.status?.toUpperCase() || "N/A",
-            details.description,
+            `"${dateStr}"`,
+            `"${timeStr}"`,
+            `"${getDecisionTypeLabel(decision.type)}"`,
+            `"${decision.symbol}"`,
+            `"${details.side?.toUpperCase() || "N/A"}"`,
+            `"${details.quantity || "N/A"}"`,
+            `"${details.triggerPrice?.toFixed(2) || "N/A"}"`,
+            `"${details.status?.toUpperCase() || "N/A"}"`,
+            `"${details.description}"`,
           ].join(",");
         } else {
           return [
-            format(new Date(decision.datetime), "yyyy-MM-dd HH:mm:ss"),
-            getDecisionTypeLabel(decision.type),
-            decision.symbol,
-            details.description,
+            `"${dateStr}"`,
+            `"${timeStr}"`,
+            `"${getDecisionTypeLabel(decision.type)}"`,
+            `"${decision.symbol}"`,
+            `"${details.description}"`,
           ].join(",");
         }
       }),
     ].join("\n");
 
-    const blob = new Blob([csvContent], { type: "text/csv" });
+    const BOM = "\uFEFF";
+    const csvWithBOM = BOM + csvContent;
+    const blob = new Blob([csvWithBOM], { type: "text/csv;charset=utf-8;" });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -291,7 +335,6 @@ export default function PastDecision() {
         </div>
       </div>
 
-      {/* Filters */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -331,7 +374,6 @@ export default function PastDecision() {
         </CardContent>
       </Card>
 
-      {/* Decision Type Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="trading">Decision Past Trades</TabsTrigger>
@@ -346,6 +388,7 @@ export default function PastDecision() {
             getDecisionIcon={getDecisionIcon}
             getDecisionTypeLabel={getDecisionTypeLabel}
             getDecisionDetails={getDecisionDetails}
+            getDecisionDate={getDecisionDate}
           />
         </TabsContent>
 
@@ -357,6 +400,7 @@ export default function PastDecision() {
             getDecisionIcon={getDecisionIcon}
             getDecisionTypeLabel={getDecisionTypeLabel}
             getDecisionDetails={getDecisionDetails}
+            getDecisionDate={getDecisionDate}
           />
         </TabsContent>
       </Tabs>
@@ -393,6 +437,17 @@ export default function PastDecision() {
   );
 }
 
+/**
+ * Decision table component for displaying decision data
+ * @param {Object} props - Component props
+ * @param {Array} props.decisions - Array of decision objects
+ * @param {boolean} props.loading - Loading state
+ * @param {string} props.activeTab - Active tab identifier
+ * @param {Function} props.getDecisionIcon - Function to get decision icon
+ * @param {Function} props.getDecisionTypeLabel - Function to get decision type label
+ * @param {Function} props.getDecisionDetails - Function to get decision details
+ * @param {Function} props.getDecisionDate - Function to get decision date
+ */
 function DecisionTable({
   decisions,
   loading,
@@ -400,6 +455,7 @@ function DecisionTable({
   getDecisionIcon,
   getDecisionTypeLabel,
   getDecisionDetails,
+  getDecisionDate,
 }) {
   if (loading) {
     return (
@@ -547,11 +603,11 @@ function DecisionTable({
                 <TableCell>
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Calendar className="w-3 h-3" />
-                    {format(new Date(decision.datetime), "MMM dd, yyyy")}
+                    {format(getDecisionDate(decision), "MMM dd, yyyy")}
                   </div>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Clock className="w-3 h-3" />
-                    {format(new Date(decision.datetime), "HH:mm:ss")}
+                    {format(getDecisionDate(decision), "HH:mm:ss")}
                   </div>
                 </TableCell>
                 <TableCell>

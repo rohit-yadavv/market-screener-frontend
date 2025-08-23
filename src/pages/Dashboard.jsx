@@ -7,7 +7,6 @@ import PastDecision from "../components/PastDecision";
 import Settings from "../components/Settings/Page";
 import RealtimeEvents from "@/components/RealTimeEvents";
 import DecisionPage from "./DecisionPage";
-import TradingPage from "./TradingPage";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -15,13 +14,11 @@ import {
   History,
   Radio,
   Settings as SettingsIcon,
-  ArrowLeftRight,
   ClipboardList,
   TrendingUp,
 } from "lucide-react";
 
 export default function Dashboard() {
-  // Push Notification Setup
   useEffect(() => {
     async function registerPush() {
       if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
