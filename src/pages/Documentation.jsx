@@ -34,16 +34,15 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import DocsHome from "@/components/docs/page-components/DocsHome";
-import TechnologyStack from "@/components/docs/page-components/TechnologyStack";
-import Architecture from "@/components/docs/page-components/SystemArchitecture";
-import BackendDocs from "@/components/docs/BackendDocs";
-import FrontendDocs from "@/components/docs/FrontendDocs";
-import ApiDocs from "@/components/docs/ApiDocs";
-import DatabaseSchema from "@/components/docs/DatabaseSchema";
-import Configuration from "@/components/docs/Configuration";
-import Deployment from "@/components/docs/Deployment";
-import Customization from "@/components/docs/Customization";
+import DocsHome from "@/documentation/DocsHome";
+import Architecture from "@/documentation/SystemArchitecture";
+import BackendDocs from "@/documentation/BackendDocumentation";
+import FrontendDocs from "@/documentation/FrontendDocumentation";
+import ApiDocs from "@/documentation/ApiDocs";
+import DatabaseSchema from "@/documentation/DatabaseSchema";
+import Configuration from "@/documentation/Configuration";
+import Deployment from "@/documentation/Deployment";
+import Customization from "@/documentation/Customization";
 
 const navigationItems = [
   {
@@ -53,18 +52,7 @@ const navigationItems = [
     icon: Home,
     component: DocsHome,
   },
-  {
-    id: "technology-stack",
-    title: "Technology Stack",
-    path: "/docs/technology-stack",
-    icon: Layers,
-    component: TechnologyStack,
-    subsections: [
-      { id: "backend-stack", title: "Backend Stack" },
-      { id: "frontend-stack", title: "Frontend Stack" },
-      { id: "external-apis", title: "External APIs" },
-    ],
-  },
+
   {
     id: "architecture",
     title: "System Architecture",
@@ -85,6 +73,8 @@ const navigationItems = [
     icon: Server,
     component: BackendDocs,
     subsections: [
+      { id: "backend-stack", title: "Backend Technology Stack" },
+      { id: "external-apis", title: "External APIs & Services" },
       { id: "root-files", title: "Root Files" },
       { id: "configuration", title: "Configuration" },
       { id: "controllers", title: "Controllers" },
@@ -110,10 +100,13 @@ const navigationItems = [
     icon: Code,
     component: FrontendDocs,
     subsections: [
+      { id: "frontend-stack", title: "Frontend Technology Stack" },
       { id: "pages", title: "Pages" },
       { id: "components", title: "Components" },
+      { id: "ui-components", title: "UI Components" },
       { id: "context", title: "Context" },
       { id: "hooks", title: "Hooks" },
+      { id: "utilities", title: "Utilities" },
     ],
   },
   {
@@ -136,8 +129,17 @@ const navigationItems = [
     icon: Database,
     component: DatabaseSchema,
     subsections: [
-      { id: "mongodb-collections", title: "MongoDB Collections" },
       { id: "redis-structures", title: "Redis Structures" },
+      { id: "user-model", title: "User Model" },
+      { id: "alert-config-model", title: "AlertConfig Model" },
+      { id: "decision-config-model", title: "DecisionConfig Model" },
+      { id: "trade-event-model", title: "TradeEvent Model" },
+      { id: "macd-event-model", title: "MACD Event Model" },
+      { id: "price-instance-event-model", title: "Price Instance Event Model" },
+      { id: "trend-continuation-model", title: "Trend Continuation Model" },
+      { id: "high-low-event-model", title: "High Low Event Model" },
+      { id: "decision-event-model", title: "Decision Event Model" },
+      { id: "decision-trade-model", title: "Decision Trade Model" },
     ],
   },
   {
@@ -213,7 +215,7 @@ export default function Documentation() {
       <div className="flex h-screen w-full bg-background">
         <Sidebar>
           <SidebarHeader className="border-b border-border">
-            <div className="flex items-center gap-3 px-4 py-4">
+            <div className="flex items-center gap-3 px-4 py-[7px]">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <BookOpen className="h-5 w-5 text-primary-foreground" />
               </div>

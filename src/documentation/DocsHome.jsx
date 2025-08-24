@@ -20,12 +20,6 @@ export default function DocsHome() {
 
   const documentationSections = [
     {
-      title: "Technology Stack",
-      description: "Technologies used in frontend and backend of the Screener",
-      path: "/docs/technology-stack",
-      icon: Layers,
-    },
-    {
       title: "System Architecture",
       description: "System design, data flow, and component interactions",
       path: "/docs/architecture",
@@ -33,13 +27,13 @@ export default function DocsHome() {
     },
     {
       title: "Backend Documentation",
-      description: "File-by-file guide to the backend",
+      description: "Backend technology stack, external APIs, and file-by-file guide",
       path: "/docs/backend-docs",
       icon: Server,
     },
     {
       title: "Frontend Documentation",
-      description: "File-by-file guide to the frontend",
+      description: "Frontend technology stack and file-by-file guide",
       path: "/docs/frontend-docs",
       icon: Code,
     },

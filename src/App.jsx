@@ -64,7 +64,12 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<LoginRoute loading={loading} isAuthenticated={isAuthenticated} />} />
+      <Route
+        path="/"
+        element={
+          <LoginRoute loading={loading} isAuthenticated={isAuthenticated} />
+        }
+      />
       <Route
         path="/dashboard"
         element={

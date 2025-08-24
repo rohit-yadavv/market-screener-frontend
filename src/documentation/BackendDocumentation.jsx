@@ -383,6 +383,74 @@ export default function BackendDocs() {
     },
   ];
 
+  const backendStack = [
+    {
+      technology: "Node.js",
+      purpose: "Runtime environment",
+      rationale:
+        "Event-driven, non-blocking I/O perfect for real-time data streams",
+    },
+    {
+      technology: "TypeScript",
+      purpose: "Programming language",
+      rationale: "Static typing for better code quality and maintainability",
+    },
+    {
+      technology: "Express.js",
+      purpose: "Web framework",
+      rationale: "Minimal, flexible framework for building REST APIs quickly",
+    },
+    {
+      technology: "MongoDB",
+      purpose: "Primary database",
+      rationale:
+        "Flexible document structure, it is used for storing data permanently",
+    },
+    {
+      technology: "Redis",
+      purpose: "In-memory cache",
+      rationale: "High-speed caching for user configs and real-time state",
+    },
+    {
+      technology: "JWT",
+      purpose: "Authentication",
+      rationale: "Used for authentication via HTTP-only cookies",
+    },
+    {
+      technology: "Pino",
+      purpose: "Logging",
+      rationale: "High-performance JSON logging",
+    },
+    {
+      technology: "Node-cron",
+      purpose: "Scheduling",
+      rationale: "Cron-based job scheduling for market hours",
+    },
+  ];
+
+  const externalApis = [
+    {
+      technology: "Twelve Data API",
+      purpose: "Market data provider",
+      rationale: "Used to get the real-time market data for the Screener",
+    },
+    {
+      technology: "Alpaca Trading API",
+      purpose: "Trading execution",
+      rationale: "Used to execute trades for the Screener",
+    },
+    {
+      technology: "Web Push API",
+      purpose: "Push notifications",
+      rationale: "Used to send push notifications to the users",
+    },
+    {
+      technology: "Nodemailer",
+      purpose: "Email service",
+      rationale: "Used to send email notifications to the users",
+    },
+  ];
+
   // eslint-disable-next-line no-unused-vars
   const renderFileTable = (files, title, IconComponent, sectionId) => (
     <div className="mb-12" id={sectionId}>
@@ -443,6 +511,88 @@ export default function BackendDocs() {
 
       {/* Main Content */}
       <div className="w-full mx-auto px-6 py-12">
+        {/* Backend Stack */}
+        <div className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">
+              Backend Technology Stack
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Technologies and tools used in the backend implementation
+            </p>
+          </div>
+
+          <Card className="border-border">
+            <CardContent className="p-6">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-1/4">Technology</TableHead>
+                    <TableHead className="w-1/4">Purpose</TableHead>
+                    <TableHead className="w-1/2">Why Chosen</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {backendStack.map((tech, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium text-foreground">
+                        {tech.technology}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {tech.purpose}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {tech.rationale}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* External APIs */}
+        <div className="mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">
+              External APIs & Services
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+              Third-party services and APIs integrated with the backend
+            </p>
+          </div>
+
+          <Card className="border-border">
+            <CardContent className="p-6">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-1/4">API/Service</TableHead>
+                    <TableHead className="w-1/4">Purpose</TableHead>
+                    <TableHead className="w-1/2">Why Chosen</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {externalApis.map((api, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium text-foreground">
+                        {api.technology}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {api.purpose}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {api.rationale}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Root Files */}
         {renderFileTable(rootFiles, "Root Files", FileText, "root-files")}
 

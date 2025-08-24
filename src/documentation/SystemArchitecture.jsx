@@ -1,31 +1,20 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Monitor,
   Bot,
   Bell,
-  Clock,
   TrendingUp,
-  Zap,
-  Cpu,
   Database,
   Globe,
   Smartphone,
-  Settings,
-  Palette,
   Layers,
-  Server,
-  Code,
   Network,
   Activity,
   Target,
-  BarChart3,
   DollarSign,
-  AlertTriangle,
   CheckCircle,
-  RotateCcw,
 } from "lucide-react";
-import MermaidDiagram from "../MermaidDiagram";
+import MermaidDiagram from "./MermaidDiagram";
 
 export default function Architecture() {
   const coreSystemFlow = `
