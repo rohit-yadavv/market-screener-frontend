@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - Market Screener Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="documentation-container">
+        <!-- Left Sidebar - Table of Contents -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>🚀 Market Screener</h1>
+                <p>Technical Documentation</p>
+            </div>
+            
+            <nav class="toc">
+                <div class="toc-section">
+                    <a href="index.html" class="toc-main">🏠 Home</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="executive-summary.html" class="toc-main">📋 Executive Summary</a>
+                    <a href="executive-summary.html#project-overview" class="toc-sub">Project Overview</a>
+                    <a href="executive-summary.html#key-features" class="toc-sub">Key Features</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="technology-stack.html" class="toc-main">💻 Technology Stack</a>
+                    <a href="technology-stack.html#backend-tech" class="toc-sub">Backend Technologies</a>
+                    <a href="technology-stack.html#frontend-tech" class="toc-sub">Frontend Technologies</a>
+                    <a href="technology-stack.html#why-typescript" class="toc-sub">Why TypeScript</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="architecture.html" class="toc-main">🏗️ System Architecture</a>
+                    <a href="architecture.html#high-level-arch" class="toc-sub">High-Level Architecture</a>
+                    <a href="architecture.html#data-flow-arch" class="toc-sub">Data Flow Architecture</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="backend-docs.html" class="toc-main">⚙️ Backend Documentation</a>
+                    <a href="backend-docs.html#root-files" class="toc-sub">Root Files</a>
+                    <a href="backend-docs.html#configuration" class="toc-sub">Configuration</a>
+                    <a href="backend-docs.html#controllers" class="toc-sub">Controllers</a>
+                    <a href="backend-docs.html#middleware" class="toc-sub">Middleware</a>
+                    <a href="backend-docs.html#models" class="toc-sub">Models</a>
+                    <a href="backend-docs.html#routes" class="toc-sub">Routes</a>
+                    <a href="backend-docs.html#services" class="toc-sub">Services</a>
+                    <a href="backend-docs.html#alerts" class="toc-sub">Alerts</a>
+                    <a href="backend-docs.html#jobs" class="toc-sub">Jobs</a>
+                    <a href="backend-docs.html#utils" class="toc-sub">Utils</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="frontend-docs.html" class="toc-main">🎨 Frontend Documentation</a>
+                    <a href="frontend-docs.html#pages" class="toc-sub">Pages</a>
+                    <a href="frontend-docs.html#components" class="toc-sub">Components</a>
+                    <a href="frontend-docs.html#context" class="toc-sub">Context</a>
+                    <a href="frontend-docs.html#hooks" class="toc-sub">Hooks</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="api-docs.html" class="toc-main active">🔌 API Documentation</a>
+                    <a href="#auth-endpoints" class="toc-sub">Authentication</a>
+                    <a href="#user-endpoints" class="toc-sub">User Management</a>
+                    <a href="#alert-endpoints" class="toc-sub">Alert System</a>
+                    <a href="#decision-endpoints" class="toc-sub">Decisions</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="database-schema.html" class="toc-main">🗄️ Database Schema</a>
+                    <a href="database-schema.html#mongodb-collections" class="toc-sub">MongoDB Collections</a>
+                    <a href="database-schema.html#redis-structures" class="toc-sub">Redis Structures</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="configuration.html" class="toc-main">⚙️ Configuration</a>
+                    <a href="configuration.html#env-variables" class="toc-sub">Environment Variables</a>
+                    <a href="configuration.html#config-categories" class="toc-sub">Config Categories</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="deployment.html" class="toc-main">🚀 Deployment Guide</a>
+                    <a href="deployment.html#prerequisites" class="toc-sub">Prerequisites</a>
+                    <a href="deployment.html#installation" class="toc-sub">Installation</a>
+                    <a href="deployment.html#production" class="toc-sub">Production</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="customization.html" class="toc-main">🔧 Customization</a>
+                    <a href="customization.html#new-alerts" class="toc-sub">New Alert Types</a>
+                    <a href="customization.html#trading-strategies" class="toc-sub">Trading Strategies</a>
+                    <a href="customization.html#ui-extension" class="toc-sub">UI Extension</a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>🔌 API Documentation</h1>
+                <p>Complete REST API Reference</p>
+            </div>
+            
+            <div class="content">
+                <!-- API Documentation -->
+                <div class="section" id="api-documentation">
+                    <h2>🔌 6. API Documentation</h2>
+
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <h3>🔐 Authentication</h3>
+                            <p>JWT-based authentication with HTTP-only cookies</p>
+                        </div>
+                        
+                        <div class="overview-card">
+                            <h3>📊 User Management</h3>
+                            <p>User profiles, symbols, and preferences management</p>
+                        </div>
+                        
+                        <div class="overview-card">
+                            <h3>🚨 Alert System</h3>
+                            <p>Alert configuration and historical data access</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>🌐 Base URL</h4>
+                        <p><code>https://your-domain.com/api</code> (Production)</p>
+                        <p><code>http://localhost:3000/api</code> (Development)</p>
+                    </div>
+
+                    <h3 id="auth-endpoints">Authentication Endpoints</h3>
+                    
+                    <div class="api-endpoint">
+                        <h4>POST /auth/login</h4>
+                        <p><strong>Purpose:</strong> User authentication</p>
+                        <p><strong>Request Body:</strong></p>
+                        <div class="code-block">
+{
+  "email": "user@example.com",
+  "password": "userpassword"
+}
+                        </div>
+                        <p><strong>Response:</strong></p>
+                        <div class="code-block">
+{
+  "success": true,
+  "email": "user@example.com"
+}
+                        </div>
+                        <p><strong>Cookies:</strong> Sets HTTP-only JWT token</p>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>POST /auth/addUser</h4>
+                        <p><strong>Purpose:</strong> User registration</p>
+                        <p><strong>Request Body:</strong></p>
+                        <div class="code-block">
+{
+  "email": "newuser@example.com",
+  "password": "newpassword"
+}
+                        </div>
+                        <p><strong>Response:</strong></p>
+                        <div class="code-block">
+{
+  "success": true,
+  "message": "User created successfully"
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>GET /auth/verify</h4>
+                        <p><strong>Purpose:</strong> Token verification</p>
+                        <p><strong>Headers:</strong> JWT token in cookie</p>
+                        <p><strong>Response:</strong></p>
+                        <div class="code-block">
+{
+  "success": true,
+  "user": {
+    "id": "user_id",
+    "email": "user@example.com"
+  }
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>POST /auth/changePassword</h4>
+                        <p><strong>Purpose:</strong> Password change</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Request Body:</strong></p>
+                        <div class="code-block">
+{
+  "currentPassword": "oldpassword",
+  "newPassword": "newpassword"
+}
+                        </div>
+                    </div>
+
+                    <h3 id="user-endpoints">User Management Endpoints</h3>
+                    
+                    <div class="api-endpoint">
+                        <h4>GET /user/profile</h4>
+                        <p><strong>Purpose:</strong> Get user profile</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Response:</strong></p>
+                        <div class="code-block">
+{
+  "success": true,
+  "user": {
+    "id": "user_id",
+    "email": "user@example.com",
+    "alertEmail": "alerts@example.com",
+    "allSymbols": ["AAPL", "GOOGL"],
+    "subscribedSymbolsForMACD": ["AAPL"]
+  }
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>PUT /user/profile</h4>
+                        <p><strong>Purpose:</strong> Update user profile</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Request Body:</strong></p>
+                        <div class="code-block">
+{
+  "alertEmail": "newalerts@example.com"
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>POST /user/symbols</h4>
+                        <p><strong>Purpose:</strong> Add trading symbol</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Request Body:</strong></p>
+                        <div class="code-block">
+{
+  "symbol": "TSLA"
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>DELETE /user/symbols</h4>
+                        <p><strong>Purpose:</strong> Remove symbol from watchlist</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Request Body:</strong></p>
+                        <div class="code-block">
+{
+  "symbol": "TSLA"
+}
+                        </div>
+                    </div>
+
+                    <h3 id="alert-endpoints">Alert System Endpoints</h3>
+                    
+                    <div class="api-endpoint">
+                        <h4>GET /alerts/config</h4>
+                        <p><strong>Purpose:</strong> Get alert configurations</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Response:</strong></p>
+                        <div class="code-block">
+{
+  "success": true,
+  "configs": [
+    {
+      "id": "config_id",
+      "symbol": "AAPL",
+      "alertType": "macd",
+      "threshold": 5,
+      "enabled": true,
+      "notificationChannels": ["sse", "email"]
+    }
+  ]
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>POST /alerts/config</h4>
+                        <p><strong>Purpose:</strong> Create alert configuration</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Request Body:</strong></p>
+                        <div class="code-block">
+{
+  "symbol": "AAPL",
+  "alertType": "price",
+  "threshold": 150.00,
+  "enabled": true,
+  "notificationChannels": ["sse", "push", "email"]
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>PUT /alerts/config/:id</h4>
+                        <p><strong>Purpose:</strong> Update alert configuration</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Request Body:</strong></p>
+                        <div class="code-block">
+{
+  "threshold": 160.00,
+  "enabled": false
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>DELETE /alerts/config/:id</h4>
+                        <p><strong>Purpose:</strong> Delete alert configuration</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                    </div>
+
+                    <h3 id="decision-endpoints">Decision Management Endpoints</h3>
+                    
+                    <div class="api-endpoint">
+                        <h4>GET /decisions/config</h4>
+                        <p><strong>Purpose:</strong> Get decision configurations</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Response:</strong></p>
+                        <div class="code-block">
+{
+  "success": true,
+  "configs": [
+    {
+      "id": "decision_id",
+      "symbol": "AAPL",
+      "firstCondition": "macd_cycle",
+      "firstConditionThreshold": 3,
+      "priceCondition": "above_ema",
+      "priceConditionThreshold": 20,
+      "enabled": true
+    }
+  ]
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>POST /decisions/config</h4>
+                        <p><strong>Purpose:</strong> Create decision configuration</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Request Body:</strong></p>
+                        <div class="code-block">
+{
+  "symbol": "GOOGL",
+  "firstCondition": "trend_continuation",
+  "firstConditionThreshold": 5,
+  "priceCondition": "volume_spike",
+  "priceConditionThreshold": 2.5,
+  "enabled": true
+}
+                        </div>
+                    </div>
+
+                    <h3>Real-time Data Endpoints</h3>
+                    
+                    <div class="api-endpoint">
+                        <h4>GET /sse</h4>
+                        <p><strong>Purpose:</strong> Server-Sent Events stream</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Response:</strong> Real-time event stream</p>
+                        <p><strong>Events:</strong></p>
+                        <ul>
+                            <li><code>connected</code>: Connection established</li>
+                            <li><code>message</code>: Real-time data updates</li>
+                        </ul>
+                    </div>
+
+                    <h3>Historical Data Endpoints</h3>
+                    
+                    <div class="api-endpoint">
+                        <h4>GET /history/alerts</h4>
+                        <p><strong>Purpose:</strong> Get alert history</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Query Parameters:</strong></p>
+                        <ul>
+                            <li><code>page</code>: Page number (default: 1)</li>
+                            <li><code>limit</code>: Items per page (default: 20)</li>
+                            <li><code>symbol</code>: Filter by symbol</li>
+                        </ul>
+                        <p><strong>Response:</strong></p>
+                        <div class="code-block">
+{
+  "success": true,
+  "alerts": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "pages": 8
+  }
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>GET /history/decisions</h4>
+                        <p><strong>Purpose:</strong> Get decision history</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Query Parameters:</strong></p>
+                        <ul>
+                            <li><code>page</code>: Page number (default: 1)</li>
+                            <li><code>limit</code>: Items per page (default: 20)</li>
+                            <li><code>symbol</code>: Filter by symbol</li>
+                        </ul>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>GET /history/trades</h4>
+                        <p><strong>Purpose:</strong> Get trade history</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Query Parameters:</strong></p>
+                        <ul>
+                            <li><code>page</code>: Page number (default: 1)</li>
+                            <li><code>limit</code>: Items per page (default: 20)</li>
+                            <li><code>symbol</code>: Filter by symbol</li>
+                            <li><code>status</code>: Filter by trade status</li>
+                        </ul>
+                    </div>
+
+                    <h3>Push Notification Endpoints</h3>
+                    
+                    <div class="api-endpoint">
+                        <h4>POST /push/subscribe</h4>
+                        <p><strong>Purpose:</strong> Subscribe to push notifications</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                        <p><strong>Request Body:</strong></p>
+                        <div class="code-block">
+{
+  "subscription": {
+    "endpoint": "https://fcm.googleapis.com/fcm/send/...",
+    "keys": {
+      "p256dh": "BNcRd...",
+      "auth": "tBHI..."
+    }
+  }
+}
+                        </div>
+                    </div>
+
+                    <div class="api-endpoint">
+                        <h4>POST /push/unsubscribe</h4>
+                        <p><strong>Purpose:</strong> Unsubscribe from push notifications</p>
+                        <p><strong>Headers:</strong> JWT token required</p>
+                    </div>
+
+                    <h3>🔧 Error Handling</h3>
+                    <div class="schema-box">
+                        <h4>Standard Error Response Format</h4>
+                        <div class="code-block">
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid email format",
+    "details": {
+      "field": "email",
+      "value": "invalid-email"
+    }
+  }
+}
+                        </div>
+                        
+                        <h4>Common Error Codes</h4>
+                        <table class="tech-table">
+                            <thead>
+                                <tr>
+                                    <th>Error Code</th>
+                                    <th>Description</th>
+                                    <th>HTTP Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>UNAUTHORIZED</code></td>
+                                    <td>Invalid or missing authentication token</td>
+                                    <td>401</td>
+                                </tr>
+                                <tr>
+                                    <td><code>FORBIDDEN</code></td>
+                                    <td>Insufficient permissions</td>
+                                    <td>403</td>
+                                </tr>
+                                <tr>
+                                    <td><code>NOT_FOUND</code></td>
+                                    <td>Resource not found</td>
+                                    <td>404</td>
+                                </tr>
+                                <tr>
+                                    <td><code>VALIDATION_ERROR</code></td>
+                                    <td>Invalid request data</td>
+                                    <td>400</td>
+                                </tr>
+                                <tr>
+                                    <td><code>INTERNAL_ERROR</code></td>
+                                    <td>Server internal error</td>
+                                    <td>500</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>📊 Rate Limiting</h3>
+                    <div class="highlight-box">
+                        <h4>API Rate Limits</h4>
+                        <ul>
+                            <li><strong>Authentication:</strong> 5 requests per minute</li>
+                            <li><strong>General API:</strong> 100 requests per minute</li>
+                            <li><strong>SSE Connections:</strong> 1 connection per user</li>
+                            <li><strong>Data Export:</strong> 10 requests per hour</li>
+                        </ul>
+                        <p><strong>Rate Limit Headers:</strong></p>
+                        <div class="code-block">
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640995200
+                        </div>
+                    </div>
+
+                    <h3>🔐 Authentication Flow</h3>
+                    <div class="diagram-container">
+                        <h4>JWT Authentication Process</h4>
+                        <div class="mermaid">
+                            sequenceDiagram
+                                participant C as Client
+                                participant S as Server
+                                participant DB as Database
+                                
+                                C->>S: POST /auth/login
+                                S->>DB: Verify credentials
+                                DB-->>S: User data
+                                S->>S: Generate JWT token
+                                S-->>C: Set HTTP-only cookie
+                                
+                                C->>S: API request with cookie
+                                S->>S: Verify JWT token
+                                S->>DB: Get user data
+                                S-->>C: API response
+                                
+                                Note over C,S: Token expires after 7 days
+                                C->>S: Request with expired token
+                                S-->>C: 401 Unauthorized
+                        </div>
+                    </div>
+
+                    <div class="schema-box">
+                        <h4>📝 API Testing</h4>
+                        <p>You can test the API endpoints using tools like:</p>
+                        <ul>
+                            <li><strong>Postman:</strong> Import the collection for easy testing</li>
+                            <li><strong>cURL:</strong> Command-line testing</li>
+                            <li><strong>Insomnia:</strong> REST client with environment support</li>
+                        </ul>
+                        
+                        <h4>Example cURL Commands</h4>
+                        <div class="code-block">
+# Login
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password"}' \
+  -c cookies.txt
+
+# Get user profile (with cookie)
+curl -X GET http://localhost:3000/api/user/profile \
+  -b cookies.txt
+
+# Create alert config
+curl -X POST http://localhost:3000/api/alerts/config \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{"symbol":"AAPL","alertType":"macd","threshold":5}'
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid diagrams
+        mermaid.initialize({ startOnLoad: true });
+        
+        // Add active class to current page in navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('.toc-main');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

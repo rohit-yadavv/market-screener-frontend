@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Summary - Market Screener Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="documentation-container">
+        <!-- Left Sidebar - Table of Contents -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>Market Screener</h1>
+                <p>Technical Documentation</p>
+            </div>
+            
+            <nav class="toc">
+                <div class="toc-section">
+                    <a href="index.html" class="toc-main">🏠 Home</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="executive-summary.html" class="toc-main active">📋 Executive Summary</a>
+                    <a href="#project-overview" class="toc-sub">Project Overview</a>
+                    <a href="#key-features" class="toc-sub">Key Features</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="technology-stack.html" class="toc-main">💻 Technology Stack</a>
+                    <a href="technology-stack.html#backend-tech" class="toc-sub">Backend Technologies</a>
+                    <a href="technology-stack.html#frontend-tech" class="toc-sub">Frontend Technologies</a>
+                    <a href="technology-stack.html#why-typescript" class="toc-sub">Why TypeScript</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="architecture.html" class="toc-main">🏗️ System Architecture</a>
+                    <a href="architecture.html#high-level-arch" class="toc-sub">High-Level Architecture</a>
+                    <a href="architecture.html#data-flow-arch" class="toc-sub">Data Flow Architecture</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="backend-docs.html" class="toc-main">⚙️ Backend Documentation</a>
+                    <a href="backend-docs.html#root-files" class="toc-sub">Root Files</a>
+                    <a href="backend-docs.html#configuration" class="toc-sub">Configuration</a>
+                    <a href="backend-docs.html#controllers" class="toc-sub">Controllers</a>
+                    <a href="backend-docs.html#middleware" class="toc-sub">Middleware</a>
+                    <a href="backend-docs.html#models" class="toc-sub">Models</a>
+                    <a href="backend-docs.html#routes" class="toc-sub">Routes</a>
+                    <a href="backend-docs.html#services" class="toc-sub">Services</a>
+                    <a href="backend-docs.html#alerts" class="toc-sub">Alerts</a>
+                    <a href="backend-docs.html#jobs" class="toc-sub">Jobs</a>
+                    <a href="backend-docs.html#utils" class="toc-sub">Utils</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="frontend-docs.html" class="toc-main">🎨 Frontend Documentation</a>
+                    <a href="frontend-docs.html#pages" class="toc-sub">Pages</a>
+                    <a href="frontend-docs.html#components" class="toc-sub">Components</a>
+                    <a href="frontend-docs.html#context" class="toc-sub">Context</a>
+                    <a href="frontend-docs.html#hooks" class="toc-sub">Hooks</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="api-docs.html" class="toc-main">🔌 API Documentation</a>
+                    <a href="api-docs.html#auth-endpoints" class="toc-sub">Authentication</a>
+                    <a href="api-docs.html#user-endpoints" class="toc-sub">User Management</a>
+                    <a href="api-docs.html#alert-endpoints" class="toc-sub">Alert System</a>
+                    <a href="api-docs.html#decision-endpoints" class="toc-sub">Decisions</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="database-schema.html" class="toc-main">🗄️ Database Schema</a>
+                    <a href="database-schema.html#mongodb-collections" class="toc-sub">MongoDB Collections</a>
+                    <a href="database-schema.html#redis-structures" class="toc-sub">Redis Structures</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="configuration.html" class="toc-main">⚙️ Configuration</a>
+                    <a href="configuration.html#env-variables" class="toc-sub">Environment Variables</a>
+                    <a href="configuration.html#config-categories" class="toc-sub">Config Categories</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="deployment.html" class="toc-main">🚀 Deployment Guide</a>
+                    <a href="deployment.html#prerequisites" class="toc-sub">Prerequisites</a>
+                    <a href="deployment.html#installation" class="toc-sub">Installation</a>
+                    <a href="deployment.html#production" class="toc-sub">Production</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="customization.html" class="toc-main">🔧 Customization</a>
+                    <a href="customization.html#new-alerts" class="toc-sub">New Alert Types</a>
+                    <a href="customization.html#trading-strategies" class="toc-sub">Trading Strategies</a>
+                    <a href="customization.html#ui-extension" class="toc-sub">UI Extension</a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>Executive Summary</h1>
+                <p>Project Overview & Key Features</p>
+            </div>
+            
+            <div class="content">
+                <!-- Executive Summary -->
+                <div class="section" id="executive-summary">
+                    <h2>1. Executive Summary</h2>
+                    
+                    <div id="project-overview">
+                        <div class="overview-grid">
+                            <div class="overview-card">
+                                <h3>Project Overview</h3>
+                                <p>A real-time market screener that continuously monitors financial markets, generates alerts based on technical indicators, and provides automated trading decision support with multi-channel notifications.</p>
+                            </div>
+                            
+                            <div class="overview-card">
+                                <h3>Purpose</h3>
+                                <p>Automate market scanning and trading opportunity identification to save time and improve decision-making efficiency for traders.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 id="key-features">Key Features</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Real-time Processing</h4>
+                            <p>Market data processing at 1-minute intervals during US market hours (9:30 AM - 4:00 PM EST, Mon-Fri)</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Multiple Alert Types</h4>
+                            <p>MACD cycles, Price Action, EMA touches, High/Low breaks, Trend Continuation with customizable thresholds</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Automated Decisions</h4>
+                            <p>Decision engine with buy/sell signals and position management using EMA-based selling strategies</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Multi-channel Notifications</h4>
+                            <p>In-app (SSE), Push notifications, Email alerts with user preference management</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Market Hours Detection</h4>
+                            <p>Intelligent US market hours detection with automatic scanning activation/deactivation</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Position Management</h4>
+                            <p>EMA-based selling with profit optimization and comprehensive trade tracking</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>System Capabilities</h4>
+                        <p><strong>Advanced market monitoring and automated trading decision support</strong> for internal team use. The system is designed for automated market monitoring and can be extended with custom features as needed.</p>
+                    </div>
+
+                    <h3>System Capabilities</h3>
+                    <div class="diagram-container">
+                        <h4>Core System Flow</h4>
+                        <div class="mermaid">
+                            flowchart TD
+                                A[Market Data Input] --> B[Real-time Processing]
+                                B --> C[Technical Analysis]
+                                C --> D[Alert Generation]
+                                D --> E[Decision Engine]
+                                E --> F[Trading Execution]
+                                F --> G[Position Management]
+                                
+                                D --> H[Multi-channel Notifications]
+                                H --> I[SSE Real-time]
+                                H --> J[Push Notifications]
+                                H --> K[Email Alerts]
+                                
+                                style A fill:#ffd54f,stroke:#333,stroke-width:2px
+                                style B fill:#81c784,stroke:#333,stroke-width:2px
+                                style C fill:#64b5f6,stroke:#333,stroke-width:2px
+                                style D fill:#ffb74d,stroke:#333,stroke-width:2px
+                                style E fill:#f06292,stroke:#333,stroke-width:2px
+                                style F fill:#9c27b0,stroke:#333,stroke-width:2px,color:#fff
+                                style G fill:#795548,stroke:#333,stroke-width:2px,color:#fff
+                        </div>
+                    </div>
+
+                    <h3>📈 Market Coverage</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>📊 Data Sources</h4>
+                            <ul>
+                                <li><strong>Twelve Data API:</strong> Real-time and historical market data</li>
+                                <li><strong>Alpaca Trading API:</strong> Commission-free trading execution</li>
+                                <li><strong>Multiple Timeframes:</strong> 1-minute, 5-minute, daily intervals</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>📋 Technical Indicators</h4>
+                            <ul>
+                                <li><strong>MACD:</strong> Moving Average Convergence Divergence</li>
+                                <li><strong>EMA/SMA:</strong> Exponential and Simple Moving Averages</li>
+                                <li><strong>Price Action:</strong> Candlestick patterns and volume analysis</li>
+                                <li><strong>Support/Resistance:</strong> High/Low break detection</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>🎯 Trading Instruments</h4>
+                            <ul>
+                                <li><strong>Stocks:</strong> US equity markets</li>
+                                <li><strong>ETFs:</strong> Exchange-traded funds</li>
+                                <li><strong>Custom Symbols:</strong> User-defined watchlists</li>
+                                <li><strong>Real-time Quotes:</strong> Live price feeds</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <h3>🔄 Real-time Processing Pipeline</h3>
+                    <div class="api-endpoint">
+                        <h4>📊 Data Processing Flow</h4>
+                        <ol class="step-list">
+                            <li><strong>Market Data Ingestion:</strong> Continuous polling of Twelve Data API for fresh market data</li>
+                            <li><strong>Technical Analysis:</strong> Calculation of MACD, EMA, SMA, and other indicators</li>
+                            <li><strong>Pattern Recognition:</strong> Detection of price patterns, breakouts, and trend changes</li>
+                            <li><strong>Alert Generation:</strong> Triggering alerts based on user-defined conditions</li>
+                            <li><strong>Decision Processing:</strong> Evaluating trading decisions using multi-condition logic</li>
+                            <li><strong>Trade Execution:</strong> Automated order placement through Alpaca API</li>
+                            <li><strong>Position Monitoring:</strong> Real-time tracking of open positions and P&L</li>
+                        </ol>
+                    </div>
+
+                    <div class="schema-box">
+                        <h4>🎛️ User Control Features</h4>
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <h4>⚙️ Configuration</h4>
+                                <ul>
+                                    <li>Custom alert thresholds</li>
+                                    <li>Symbol watchlist management</li>
+                                    <li>Notification preferences</li>
+                                    <li>Trading strategy parameters</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <h4>📊 Monitoring</h4>
+                                <ul>
+                                    <li>Real-time dashboard</li>
+                                    <li>Historical alert logs</li>
+                                    <li>Trade performance analytics</li>
+                                    <li>System status monitoring</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <h4>🔧 Customization</h4>
+                                <ul>
+                                    <li>Custom alert types</li>
+                                    <li>Personalized trading strategies</li>
+                                    <li>UI theme customization</li>
+                                    <li>API integration capabilities</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>🚀 Competitive Advantages</h4>
+                        <ul>
+                            <li><strong>Real-time Processing:</strong> 1-minute interval scanning during market hours</li>
+                            <li><strong>Multi-channel Alerts:</strong> SSE, push notifications, and email delivery</li>
+                            <li><strong>Automated Trading:</strong> Decision engine with position management</li>
+                            <li><strong>Extensible Architecture:</strong> Modular design for easy customization</li>
+                            <li><strong>Comprehensive Documentation:</strong> Detailed technical documentation for developers</li>
+                            <li><strong>Modern Tech Stack:</strong> TypeScript, React, Node.js for maintainability</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid diagrams
+        mermaid.initialize({ startOnLoad: true });
+        
+        // Add active class to current page in navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('.toc-main');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

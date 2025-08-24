@@ -9,6 +9,7 @@ import RealtimeEvents from "@/components/RealTimeEvents";
 import DecisionPage from "./DecisionPage";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import {
   CircleAlert,
   History,
@@ -16,9 +17,13 @@ import {
   Settings as SettingsIcon,
   ClipboardList,
   TrendingUp,
+  BookOpen,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+
   useEffect(() => {
     async function registerPush() {
       if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
@@ -35,9 +40,19 @@ export default function Dashboard() {
 
   return (
     <main className="min-h-screen bg-background py-6 px-4 md:px-10">
-      <h1 className="text-3xl font-bold mb-6 text-foreground">
-        Screener Dashboard
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-foreground">
+          Screener Dashboard
+        </h1>
+        <Button
+          variant="outline"
+          onClick={() => navigate('/docs')}
+          className="flex items-center gap-2"
+        >
+          <BookOpen className="w-4 h-4" />
+          Documentation
+        </Button>
+      </div>
 
       <Tabs defaultValue="stocks" className="w-full">
         <div className="border-b border-border">

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Market Screener - Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="documentation-container">
+        <!-- Left Sidebar - Table of Contents -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1>Market Screener</h1>
+                <p>Technical Documentation</p>
+            </div>
+            
+            <nav class="toc">
+                <div class="toc-section">
+                    <a href="index.html" class="toc-main active">Home</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="executive-summary.html" class="toc-main">Executive Summary</a>
+                    <a href="executive-summary.html#project-overview" class="toc-sub">Project Overview</a>
+                    <a href="executive-summary.html#key-features" class="toc-sub">Key Features</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="technology-stack.html" class="toc-main">Technology Stack</a>
+                    <a href="technology-stack.html#backend-tech" class="toc-sub">Backend Technologies</a>
+                    <a href="technology-stack.html#frontend-tech" class="toc-sub">Frontend Technologies</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="architecture.html" class="toc-main">System Architecture</a>
+                    <a href="architecture.html#high-level-arch" class="toc-sub">High-Level Architecture</a>
+                    <a href="architecture.html#data-flow-arch" class="toc-sub">Data Flow Architecture</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="backend-docs.html" class="toc-main">Backend Documentation</a>
+                    <a href="backend-docs.html#root-files" class="toc-sub">Root Files</a>
+                    <a href="backend-docs.html#configuration" class="toc-sub">Configuration</a>
+                    <a href="backend-docs.html#controllers" class="toc-sub">Controllers</a>
+                    <a href="backend-docs.html#middleware" class="toc-sub">Middleware</a>
+                    <a href="backend-docs.html#models" class="toc-sub">Models</a>
+                    <a href="backend-docs.html#routes" class="toc-sub">Routes</a>
+                    <a href="backend-docs.html#services" class="toc-sub">Services</a>
+                    <a href="backend-docs.html#alerts" class="toc-sub">Alerts</a>
+                    <a href="backend-docs.html#jobs" class="toc-sub">Jobs</a>
+                    <a href="backend-docs.html#utils" class="toc-sub">Utils</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="frontend-docs.html" class="toc-main">Frontend Documentation</a>
+                    <a href="frontend-docs.html#pages" class="toc-sub">Pages</a>
+                    <a href="frontend-docs.html#components" class="toc-sub">Components</a>
+                    <a href="frontend-docs.html#context" class="toc-sub">Context</a>
+                    <a href="frontend-docs.html#hooks" class="toc-sub">Hooks</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="api-docs.html" class="toc-main">API Documentation</a>
+                    <a href="api-docs.html#auth-endpoints" class="toc-sub">Authentication</a>
+                    <a href="api-docs.html#user-endpoints" class="toc-sub">User Management</a>
+                    <a href="api-docs.html#alert-endpoints" class="toc-sub">Alert System</a>
+                    <a href="api-docs.html#decision-endpoints" class="toc-sub">Decisions</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="database-schema.html" class="toc-main">Database Schema</a>
+                    <a href="database-schema.html#mongodb-collections" class="toc-sub">MongoDB Collections</a>
+                    <a href="database-schema.html#redis-structures" class="toc-sub">Redis Structures</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="configuration.html" class="toc-main">Configuration</a>
+                    <a href="configuration.html#env-variables" class="toc-sub">Environment Variables</a>
+                    <a href="configuration.html#config-categories" class="toc-sub">Config Categories</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="deployment.html" class="toc-main">Deployment Guide</a>
+                    <a href="deployment.html#prerequisites" class="toc-sub">Prerequisites</a>
+                    <a href="deployment.html#installation" class="toc-sub">Installation</a>
+                    <a href="deployment.html#production" class="toc-sub">Production</a>
+                </div>
+                
+                <div class="toc-section">
+                    <a href="customization.html" class="toc-main">Customization</a>
+                    <a href="customization.html#new-alerts" class="toc-sub">New Alert Types</a>
+                    <a href="customization.html#trading-strategies" class="toc-sub">Trading Strategies</a>
+                    <a href="customization.html#ui-extension" class="toc-sub">UI Extension</a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <h1>REAL-TIME MARKET SCREENER</h1>
+                <p>Comprehensive Technical Documentation</p>
+            </div>
+            
+            <div class="content">
+                <!-- Welcome Section -->
+                <div class="section">
+                    <h2>🎯 Welcome to Market Screener Documentation</h2>
+                    
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <h3>📊 Real-time Market Monitoring</h3>
+                            <p>A sophisticated system that continuously monitors financial markets, processes technical indicators, and generates intelligent trading alerts.</p>
+                        </div>
+                        
+                        <div class="overview-card">
+                            <h3>🤖 Automated Decision Engine</h3>
+                            <p>Advanced algorithms that analyze market patterns and provide automated trading decision support with position management.</p>
+                        </div>
+                        
+                        <div class="overview-card">
+                            <h3>Multi-channel Notifications</h3>
+                            <p>Instant alerts delivered through multiple channels: in-app real-time updates, push notifications, and email alerts.</p>
+                        </div>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>What You'll Find Here</h4>
+                        <p>This comprehensive documentation covers every aspect of the Real-time Market Screener system, from high-level architecture to detailed implementation guides. Whether you're a developer looking to understand the codebase, a trader wanting to customize alerts, or a system administrator planning deployment, you'll find the information you need.</p>
+                    </div>
+
+                    <h3>Documentation Sections</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Executive Summary</h4>
+                            <p>High-level overview of the project, key features, and system capabilities. Perfect for new team members.</p>
+                            <a href="executive-summary.html" class="nav-links">Read More →</a>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Technology Stack</h4>
+                            <p>Detailed breakdown of all technologies used, including rationale for each choice and how they work together.</p>
+                            <a href="technology-stack.html" class="nav-links">Read More →</a>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>System Architecture</h4>
+                            <p>Architectural diagrams and data flow explanations showing how different components interact.</p>
+                            <a href="architecture.html" class="nav-links">Read More →</a>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Backend Documentation</h4>
+                            <p>Comprehensive file-by-file documentation of the Node.js/TypeScript backend implementation.</p>
+                            <a href="backend-docs.html" class="nav-links">Read More →</a>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Frontend Documentation</h4>
+                            <p>React-based frontend components, pages, and real-time data handling with Server-Sent Events.</p>
+                            <a href="frontend-docs.html" class="nav-links">Read More →</a>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>API Documentation</h4>
+                            <p>Complete REST API reference with endpoints, request/response formats, and authentication details.</p>
+                            <a href="api-docs.html" class="nav-links">Read More →</a>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Database Schema</h4>
+                            <p>MongoDB collections, Redis data structures, and database relationships with detailed field descriptions.</p>
+                            <a href="database-schema.html" class="nav-links">Read More →</a>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Configuration Guide</h4>
+                            <p>Environment variables, configuration files, and setup instructions for different deployment environments.</p>
+                            <a href="configuration.html" class="nav-links">Read More →</a>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Deployment Guide</h4>
+                            <p>Step-by-step deployment instructions for development, staging, and production environments.</p>
+                            <a href="deployment.html" class="nav-links">Read More →</a>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>Customization Guide</h4>
+                            <p>How to extend the system with new alert types, trading strategies, and UI components.</p>
+                            <a href="customization.html" class="nav-links">Read More →</a>
+                        </div>
+                    </div>
+
+                    <div class="schema-box">
+                        <h4>Quick Start</h4>
+                        <p>Ready to get started? Here's what you need to know:</p>
+                        <ol class="step-list">
+                            <li><strong>For Developers:</strong> Start with the <a href="technology-stack.html">Technology Stack</a> and <a href="architecture.html">System Architecture</a> to understand the overall design.</li>
+                            <li><strong>For Traders:</strong> Begin with the <a href="executive-summary.html">Executive Summary</a> and <a href="api-docs.html">API Documentation</a> to understand available features.</li>
+                            <li><strong>For System Administrators:</strong> Focus on the <a href="configuration.html">Configuration Guide</a> and <a href="deployment.html">Deployment Guide</a> for setup instructions.</li>
+                            <li><strong>For Customization:</strong> Review the <a href="customization.html">Customization Guide</a> to understand how to extend the system.</li>
+                        </ol>
+                    </div>
+
+                    <div class="highlight-box">
+                        <h4>Pro Tips</h4>
+                        <ul>
+                            <li><strong>Use the sidebar navigation</strong> to quickly jump between sections</li>
+                            <li><strong>Check the diagrams</strong> for visual understanding of complex concepts</li>
+                            <li><strong>Review code examples</strong> in the backend and frontend documentation</li>
+                            <li><strong>Follow the deployment guide</strong> step-by-step for successful setup</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid diagrams
+        mermaid.initialize({ startOnLoad: true });
+        
+        // Add active class to current page in navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const navLinks = document.querySelectorAll('.toc-main');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPage) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Add zoom functionality to diagrams
+        function addZoomControls() {
+            const diagrams = document.querySelectorAll('.mermaid');
+            diagrams.forEach((diagram, index) => {
+                const container = diagram.closest('.diagram-container');
+                if (container && !container.querySelector('.zoom-controls')) {
+                    const zoomControls = document.createElement('div');
+                    zoomControls.className = 'zoom-controls';
+                    zoomControls.innerHTML = `
+                        <button class="zoom-btn" onclick="zoomDiagram(${index}, 1.5)">Zoom In</button>
+                        <button class="zoom-btn" onclick="zoomDiagram(${index}, 1)">Reset</button>
+                        <button class="zoom-btn" onclick="fullscreenDiagram(${index})">Fullscreen</button>
+                    `;
+                    container.appendChild(zoomControls);
+                }
+            });
+        }
+
+        function zoomDiagram(index, scale) {
+            const diagrams = document.querySelectorAll('.mermaid');
+            if (diagrams[index]) {
+                diagrams[index].style.transform = `scale(${scale})`;
+                diagrams[index].classList.toggle('zoomed', scale !== 1);
+            }
+        }
+
+        function fullscreenDiagram(index) {
+            const diagrams = document.querySelectorAll('.mermaid');
+            if (diagrams[index]) {
+                const diagram = diagrams[index];
+                diagram.classList.toggle('fullscreen');
+                
+                if (diagram.classList.contains('fullscreen')) {
+                    // Add close button for fullscreen
+                    const closeBtn = document.createElement('button');
+                    closeBtn.className = 'zoom-btn';
+                    closeBtn.textContent = 'Close';
+                    closeBtn.style.position = 'fixed';
+                    closeBtn.style.top = '20px';
+                    closeBtn.style.left = '20px';
+                    closeBtn.style.zIndex = '10000';
+                    closeBtn.onclick = () => {
+                        diagram.classList.remove('fullscreen');
+                        closeBtn.remove();
+                    };
+                    document.body.appendChild(closeBtn);
+                }
+            }
+        }
+
+        // Initialize zoom controls after Mermaid renders
+        setTimeout(addZoomControls, 1000);
+    </script>
+</body>
+</html>
