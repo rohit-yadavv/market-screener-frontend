@@ -88,7 +88,26 @@ export default function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route
+        path="*"
+        element={
+          loading ? (
+            <div className="min-h-screen flex items-center justify-center bg-muted px-4">
+              <div className="w-full max-w-md space-y-4">
+                <Skeleton className="h-10 w-full rounded-lg" />
+                <Skeleton className="h-40 w-full rounded-lg" />
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-3/4 rounded-lg" />
+                  <Skeleton className="h-6 w-2/3 rounded-lg" />
+                  <Skeleton className="h-6 w-1/2 rounded-lg" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
     </Routes>
   );
 }
