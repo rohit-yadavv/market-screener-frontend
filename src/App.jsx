@@ -54,9 +54,7 @@ export default function App() {
   useEffect(() => {
     initTheme();
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js").then(() => {
-        console.log("Service Worker registered");
-      });
+      navigator.serviceWorker.register("/sw.js").then(() => {});
     }
   }, []);
 
