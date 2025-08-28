@@ -10,8 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSSE } from "@/hooks/useSSE";
+import ConnectionStatus from "./ConnectionStatus";
 import { format } from "date-fns";
 import {
   BarChart3,
@@ -23,14 +23,12 @@ import {
   AlertTriangle,
   Clock,
   Radio,
-  Wifi,
-  WifiOff,
   RefreshCw,
   Trash2,
 } from "lucide-react";
 
 const RealtimeEvents = () => {
-  const { events, isConnected } = useSSE();
+  const { events, isConnected, clearEvents } = useSSE();
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [filter, setFilter] = useState("all");
   const [maxEvents, setMaxEvents] = useState(100);
@@ -160,12 +158,6 @@ const RealtimeEvents = () => {
     return filteredEvents.filter((event) => event.type === filter);
   };
 
-  const clearEvents = () => {
-    // This would need to be implemented in the SSE hook or context
-    // For now, we'll just reset the local state
-    setFilteredEvents([]);
-  };
-
   const displayedEvents = getFilteredEvents();
 
   return (
@@ -174,19 +166,7 @@ const RealtimeEvents = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <h2 className="text-2xl font-bold">Real-time Events</h2>
-          <Badge variant="outline" className="flex items-center gap-1">
-            {isConnected ? (
-              <>
-                <Wifi className="w-3 h-3 text-green-600" />
-                Connected
-              </>
-            ) : (
-              <>
-                <WifiOff className="w-3 h-3 text-red-600" />
-                Disconnected
-              </>
-            )}
-          </Badge>
+          <ConnectionStatus />
         </div>
 
         <div className="flex items-center gap-2">
@@ -244,20 +224,6 @@ const RealtimeEvents = () => {
               onClick={() => setFilter("high_low")}
             >
               High/Low
-            </Button>
-            <Button
-              variant={filter === "trade" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilter("trade")}
-            >
-              Trades
-            </Button>
-            <Button
-              variant={filter === "decision_event" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilter("decision_event")}
-            >
-              Decision Events
             </Button>
           </div>
         </CardContent>

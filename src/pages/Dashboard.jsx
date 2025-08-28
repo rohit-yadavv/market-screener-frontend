@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { subscribeToPushNotifications } from "../utils/push.util";
 
 import AlertConfig from "../components/AlertConfig";
@@ -18,11 +18,15 @@ import {
   ClipboardList,
   TrendingUp,
   BookOpen,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { SSEContext } from "@/context/SSEContext";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { isConnected } = useContext(SSEContext);
 
   useEffect(() => {
     async function registerPush() {
@@ -46,7 +50,7 @@ export default function Dashboard() {
         </h1>
         <Button
           variant="outline"
-          onClick={() => navigate('/docs')}
+          onClick={() => navigate("/docs")}
           className="flex items-center gap-2"
         >
           <BookOpen className="w-4 h-4" />
@@ -79,6 +83,11 @@ export default function Dashboard() {
             >
               <Radio className="w-4 h-4 md:w-5 md:h-5 mr-0 md:mr-2" />
               <span className="hidden sm:inline">Realtime</span>
+              {isConnected ? (
+                <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-green-500" />
+              ) : (
+                <AlertCircle className="w-4 h-4 md:w-5 md:h-5 text-red-500" />
+              )}
             </TabsTrigger>
 
             <TabsTrigger

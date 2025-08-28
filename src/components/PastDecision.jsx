@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { format } from "date-fns";
 import { BASE_URL } from "../utils/api";
@@ -53,11 +53,7 @@ export default function PastDecision() {
     endDate: null,
   });
 
-  useEffect(() => {
-    fetchDecisions();
-  }, [activeTab, appliedFilters, pagination.page]);
-
-  const fetchDecisions = async () => {
+  const fetchDecisions = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -106,7 +102,7 @@ export default function PastDecision() {
             type: firstDecision.type,
             datetime: firstDecision.datetime,
             createdAt: firstDecision.createdAt,
-            id: firstDecision.id
+            id: firstDecision.id,
           });
         }
 
@@ -122,13 +118,12 @@ export default function PastDecision() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, appliedFilters, pagination.page, pagination.limit]);
 
-  /**
-   * Get the appropriate icon for a decision type
-   * @param {string} type - The decision type
-   * @returns {JSX.Element} The icon component
-   */
+  useEffect(() => {
+    fetchDecisions();
+  }, [fetchDecisions]);
+
   const getDecisionIcon = (type) => {
     switch (type) {
       case "decision_event":
@@ -140,11 +135,6 @@ export default function PastDecision() {
     }
   };
 
-  /**
-   * Get the display label for a decision type
-   * @param {string} type - The decision type
-   * @returns {string} The display label
-   */
   const getDecisionTypeLabel = (type) => {
     switch (type) {
       case "decision_event":
@@ -156,11 +146,6 @@ export default function PastDecision() {
     }
   };
 
-  /**
-   * Extract and format decision details based on type
-   * @param {Object} decision - The decision object
-   * @returns {Object} Formatted decision details
-   */
   const getDecisionDetails = (decision) => {
     const details = decision.details;
 
@@ -190,11 +175,6 @@ export default function PastDecision() {
     }
   };
 
-  /**
-   * Get the correct date from a decision object
-   * @param {Object} decision - The decision object
-   * @returns {Date} The decision date
-   */
   const getDecisionDate = (decision) => {
     try {
       // For decision trades, only use createdAt (no datetime field)
@@ -204,9 +184,14 @@ export default function PastDecision() {
           if (!isNaN(date.getTime())) {
             return date;
           }
-          console.warn('Invalid createdAt date for decision trade:', decision.createdAt);
+          console.warn(
+            "Invalid createdAt date for decision trade:",
+            decision.createdAt
+          );
         }
-        console.warn('No valid createdAt found for decision trade. Using current time as fallback.');
+        console.warn(
+          "No valid createdAt found for decision trade. Using current time as fallback."
+        );
         return new Date();
       }
 
@@ -216,7 +201,7 @@ export default function PastDecision() {
         if (!isNaN(date.getTime())) {
           return date;
         }
-        console.warn('Invalid datetime for decision:', decision.datetime);
+        console.warn("Invalid datetime for decision:", decision.datetime);
       }
 
       if (decision.createdAt) {
@@ -224,7 +209,7 @@ export default function PastDecision() {
         if (!isNaN(date.getTime())) {
           return date;
         }
-        console.warn('Invalid createdAt for decision:', decision.createdAt);
+        console.warn("Invalid createdAt for decision:", decision.createdAt);
       }
 
       console.warn(
@@ -232,23 +217,15 @@ export default function PastDecision() {
       );
       return new Date();
     } catch (error) {
-      console.error('Error parsing decision date:', error, decision);
+      console.error("Error parsing decision date:", error, decision);
       return new Date();
     }
   };
 
-  /**
-   * Handle filter changes
-   * @param {string} key - Filter key
-   * @param {any} value - Filter value
-   */
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  /**
-   * Apply current filters and reset pagination
-   */
   const applyFilters = () => {
     setAppliedFilters({
       symbol: filters.symbol,
@@ -258,10 +235,6 @@ export default function PastDecision() {
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
-  /**
-   * Handle page change
-   * @param {number} newPage - New page number
-   */
   const handlePageChange = (newPage) => {
     setPagination((prev) => ({ ...prev, page: newPage }));
   };
@@ -472,8 +445,7 @@ export default function PastDecision() {
   );
 }
 
-/**
- * Decision table component for displaying decision data
+/*
  * @param {Object} props - Component props
  * @param {Array} props.decisions - Array of decision objects
  * @param {boolean} props.loading - Loading state
