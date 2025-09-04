@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { format } from "date-fns";
+import { format, subDays, startOfDay, isSameDay } from "date-fns";
 import { BASE_URL } from "../utils/api";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -32,7 +32,7 @@ import {
 import { toast } from "sonner";
 
 export default function PastDecision() {
-  const [activeTab, setActiveTab] = useState("events");
+  const [activeTab, setActiveTab] = useState("trading");
   const [loading, setLoading] = useState(true);
   const [decisions, setDecisions] = useState([]);
   const [pagination, setPagination] = useState({
@@ -401,6 +401,86 @@ export default function PastDecision() {
         </TabsContent>
 
         <TabsContent value="trading" className="space-y-4">
+          {/* Profit Summary */}
+          {!loading && decisions.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Yesterday's Trading Performance
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  {format(subDays(new Date(), 1), "EEEE, MMMM do, yyyy")}
+                </p>
+              </CardHeader>
+              <CardContent>
+                {(() => {
+                  // Get yesterday's date using date-fns
+                  const yesterday = startOfDay(subDays(new Date(), 1));
+
+                  // Filter trades from yesterday only
+                  const yesterdayTrades = decisions.filter((d) => {
+                    const tradeDate = startOfDay(new Date(d.createdAt));
+                    return isSameDay(tradeDate, yesterday);
+                  });
+
+                  const tradesWithProfit = yesterdayTrades.filter(
+                    (d) =>
+                      d.details.realizedProfit !== undefined &&
+                      d.details.realizedProfit !== null
+                  );
+                  const totalProfit = tradesWithProfit.reduce(
+                    (sum, trade) => sum + trade.details.realizedProfit,
+                    0
+                  );
+                  const totalTrades = tradesWithProfit.length;
+                  const profitableTrades = tradesWithProfit.filter(
+                    (trade) => trade.details.realizedProfit > 0
+                  ).length;
+                  const winRate =
+                    totalTrades > 0
+                      ? (profitableTrades / totalTrades) * 100
+                      : 0;
+
+                  return (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-green-600">
+                          ${totalProfit.toFixed(2)}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Yesterday's Profit
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold">{totalTrades}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Yesterday's Trades
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-green-600">
+                          {profitableTrades}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Profitable Trades
+                        </p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold">
+                          {winRate.toFixed(1)}%
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Win Rate
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </CardContent>
+            </Card>
+          )}
+
           <DecisionTable
             decisions={decisions}
             loading={loading}
@@ -475,6 +555,7 @@ function DecisionTable({
                 <Skeleton className="h-4 w-20" />
                 <Skeleton className="h-4 w-16" />
                 <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-4 w-48" />
               </div>
             ))}
@@ -514,6 +595,7 @@ function DecisionTable({
                 <TableHead>Quantity</TableHead>
                 <TableHead>Price</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Profit</TableHead>
               </>
             )}
             <TableHead>Date</TableHead>
@@ -605,6 +687,36 @@ function DecisionTable({
                         {details.status?.toUpperCase() || "N/A"}
                       </Badge>
                     </TableCell>
+                    <TableCell>
+                      {details.realizedProfit !== undefined &&
+                      details.realizedProfit !== null ? (
+                        <div className="flex flex-col">
+                          <span
+                            className={`font-medium ${
+                              details.realizedProfit >= 0
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            ${details.realizedProfit.toFixed(2)}
+                          </span>
+                          {details.profitPercentage !== undefined &&
+                            details.profitPercentage !== null && (
+                              <span
+                                className={`text-xs ${
+                                  details.profitPercentage >= 0
+                                    ? "text-green-500"
+                                    : "text-red-500"
+                                }`}
+                              >
+                                ({details.profitPercentage.toFixed(2)}%)
+                              </span>
+                            )}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                   </>
                 )}
                 <TableCell>
@@ -623,6 +735,47 @@ function DecisionTable({
                     <p className="text-xs text-muted-foreground mt-1">
                       Order ID: {details.orderId}
                     </p>
+                  )}
+                  {activeTab === "trading" && details.exitPrice && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Exit Price: ${details.exitPrice.toFixed(2)}
+                    </p>
+                  )}
+                  {activeTab === "trading" && details.decisionEventId && (
+                    <div className="mt-2 p-2 bg-muted rounded text-xs">
+                      <p className="font-medium text-muted-foreground mb-1">
+                        Decision Event:
+                      </p>
+                      {details.decisionEventId.firstCondition && (
+                        <p>
+                          Condition:{" "}
+                          {details.decisionEventId.firstCondition.replace(
+                            "_",
+                            " "
+                          )}
+                        </p>
+                      )}
+                      {details.decisionEventId.firstConditionCount && (
+                        <p>
+                          First Threshold:{" "}
+                          {details.decisionEventId.firstConditionCount}
+                        </p>
+                      )}
+                      {details.decisionEventId.priceConditionCount && (
+                        <p>
+                          Price Threshold:{" "}
+                          {details.decisionEventId.priceConditionCount}
+                        </p>
+                      )}
+                      {details.decisionEventId.datetime && (
+                        <p>
+                          Event Time:{" "}
+                          {new Date(
+                            details.decisionEventId.datetime
+                          ).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </TableCell>
               </TableRow>
